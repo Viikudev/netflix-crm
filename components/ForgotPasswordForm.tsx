@@ -1,0 +1,181 @@
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldError,
+} from "@/components/ui/field";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { z } from "zod";
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@/lib/auth-client";
+import { useMutation } from "@tanstack/react-query";
+import { MailOpen } from "lucide-react";
+
+const formSchema = z.object({
+  email: z.email("Correo no valido"),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+type CheckEmailResponse =
+  | { exists: false; emailVerified: false }
+  | { exists: true; emailVerified: boolean };
+
+async function checkEmailVerification(email: string) {
+  const res = await fetch("/api/users/check-email", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  const json = (await res.json()) as CheckEmailResponse & { message?: string };
+
+  if (!res.ok) {
+    return {
+      ok: false as const,
+      error: { message: json?.message || "Error checking email" },
+    };
+  }
+
+  return { ok: true as const, data: json };
+}
+
+export default function ForgotPasswordForm() {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: "" },
+  });
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const mutation = useMutation<unknown, Error, FormValues>({
+    mutationFn: async (data: FormValues) => {
+      try {
+        // Check whether the email exists and is verified
+        const verification = await checkEmailVerification(data.email);
+        if (!verification.ok) {
+          return { error: verification.error };
+        }
+
+        const { exists, emailVerified } = verification.data;
+
+        // If user exists but email is not verified, do not send reset
+        if (exists && !emailVerified) {
+          return {
+            error: {
+              code: "not_verified",
+              message: "The email sent is not verified",
+            },
+          };
+        }
+      } catch (e) {
+        return { error: { message: "Error verificando el correo" } };
+      }
+
+      // Proceed with password reset request
+      return authClient.requestPasswordReset({
+        email: data.email,
+        redirectTo: "/reset-password",
+      });
+    },
+    onSuccess: (res: any) => {
+      if (res?.error) {
+        const message = res.error.message || "Error al solicitar reinicio";
+        // Only one field in the form, so always surface the error there
+        form.setError("email", { type: "server", message });
+        return;
+      }
+
+      setDialogOpen(true);
+    },
+    onError: (err: any) => {
+      const message = err?.message || "Error al solicitar reinicio";
+      form.setError("email", { type: "server", message });
+    },
+  });
+
+  const onSubmit = (data: FormValues) => mutation.mutate(data);
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldSet>
+            <FieldLegend>Recuperar contraseña</FieldLegend>
+            <FieldDescription>
+              Ingrese su correo para restablecer la contraseña.
+            </FieldDescription>
+
+            <FieldGroup>
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="email">Correo</FieldLabel>
+                    <Input
+                      id="email"
+                      placeholder="correo@ejemplo.com"
+                      {...field}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full font-bold"
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending ? "Enviando..." : "Enviar enlace"}
+              </Button>
+            </FieldGroup>
+          </FieldSet>
+        </form>
+
+        <p className="text-muted-foreground mt-6 text-center text-sm">
+          ¿No tienes una cuenta?{" "}
+          <Link href="/signup" className="text-primary underline">
+            Crear una cuenta
+          </Link>
+        </p>
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex flex-col justify-center gap-4">
+              <div className="w-fit self-center rounded-full bg-yellow-400 p-4">
+                <MailOpen className="mx-auto h-12 w-12 text-neutral-900" />
+              </div>
+              <p className="text-center">Revisa tu correo electrónico</p>
+            </DialogTitle>
+            <DialogDescription className="mt-4">
+              Hemos enviado un correo a tu buzon de entrada. Ingresa a tu correo
+              para restablecer tu contraseña.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
