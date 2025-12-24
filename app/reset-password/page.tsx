@@ -1,19 +1,14 @@
-"use client";
-
-import { useEffect } from "react";
+import { redirect } from "next/navigation";
 import ResetPasswordForm from "@/components/ResetPasswordForm";
-import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ResetPasswordPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export default function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams?: { token?: string };
+}) {
+  const token = searchParams?.token;
 
-  useEffect(() => {
-    const token = searchParams?.get("token");
-    if (!token) {
-      router.replace("/forgot-password");
-    }
-  }, [router, searchParams]);
+  if (!token) redirect("/forgot-password");
 
-  return <ResetPasswordForm />;
+  return <ResetPasswordForm token={token} />;
 }

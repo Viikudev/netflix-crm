@@ -35,14 +35,16 @@ export default function SignInForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  const signInMutation = useMutation<unknown, Error, FormValues>({
+  const signInMutation = useMutation({
     mutationFn: (data: FormValues) =>
       authClient.signIn.email({
         email: data.email,
         password: data.password,
       }),
-    onSuccess: (ctx) => {
-      if (ctx?.error?.status === 403) {
+    onSuccess: (res) => {
+      if (
+        (res as { error?: { status?: number } } | null)?.error?.status === 403
+      ) {
         router.push("/verify-email");
         return;
       }
@@ -50,12 +52,17 @@ export default function SignInForm() {
       queryClient.invalidateQueries({ queryKey: ["session"] });
       router.push("/dashboard");
     },
-    onError: (err: any) => {
-      if (err?.status === 403 || err?.code === "API_ERROR") {
+    onError: (err: unknown) => {
+      const e = err as {
+        status?: number;
+        code?: string;
+        message?: string;
+      } | null;
+      if (e && (e.status === 403 || e.code === "API_ERROR")) {
         router.push("/verify-email");
         return;
       }
-      const message = err?.message || "Error durante el registro";
+      const message = e && e.message ? e.message : "Error durante el registro";
       // Try to map server response to fields
       if (message.toLowerCase().includes("email")) {
         form.setError("email", { type: "server", message });

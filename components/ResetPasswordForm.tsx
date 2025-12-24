@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
+// import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,11 +18,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import {
   Field,
   FieldLabel,
-  FieldDescription,
+  // FieldDescription,
   FieldGroup,
   FieldSet,
   FieldError,
@@ -35,13 +35,14 @@ const formSchema = z.object({
 });
 
 export default function ResetPasswordForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+  token: tokenProp,
+}: {
+  token?: string;
+}) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const token = searchParams.get("token") as string;
+  const token = (tokenProp as string) ?? (searchParams.get("token") as string);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -100,9 +101,10 @@ export default function ResetPasswordForm({
                             form.formState.errors.password
                               ? [
                                   {
-                                    message:
-                                      (form.formState.errors.password as any)
-                                        .message || "",
+                                    message: String(
+                                      form.formState.errors.password?.message ||
+                                        "",
+                                    ),
                                   },
                                 ]
                               : undefined
@@ -123,11 +125,10 @@ export default function ResetPasswordForm({
                             form.formState.errors.confirmPassword
                               ? [
                                   {
-                                    message:
-                                      (
-                                        form.formState.errors
-                                          .confirmPassword as any
-                                      )?.message || "",
+                                    message: String(
+                                      form.formState.errors.confirmPassword
+                                        ?.message || "",
+                                    ),
                                   },
                                 ]
                               : undefined

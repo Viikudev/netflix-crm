@@ -84,7 +84,7 @@ export default function ForgotPasswordForm() {
             },
           };
         }
-      } catch (e) {
+      } catch {
         return { error: { message: "Error verificando el correo" } };
       }
 
@@ -94,9 +94,10 @@ export default function ForgotPasswordForm() {
         redirectTo: "/reset-password",
       });
     },
-    onSuccess: (res: any) => {
-      if (res?.error) {
-        const message = res.error.message || "Error al solicitar reinicio";
+    onSuccess: (res: unknown) => {
+      if (res && typeof res === "object" && "error" in res) {
+        const error = (res as { error?: { message?: string } }).error;
+        const message = error?.message || "Error al solicitar reinicio";
         // Only one field in the form, so always surface the error there
         form.setError("email", { type: "server", message });
         return;
@@ -104,7 +105,7 @@ export default function ForgotPasswordForm() {
 
       setDialogOpen(true);
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       const message = err?.message || "Error al solicitar reinicio";
       form.setError("email", { type: "server", message });
     },

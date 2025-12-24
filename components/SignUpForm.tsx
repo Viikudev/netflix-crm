@@ -30,11 +30,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   name: z.string().min(2, "El nombre es obligatorio"),
-  email: z.string().email("Correo no valido"),
+  email: z.email("Correo no valido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+type SignUpResult = {
+  error?: { status?: number } | null;
+  [key: string]: unknown;
+} | null;
+type SignUpError = { status?: number; code?: string; message?: string } & Error;
 
 export default function SignUpForm() {
   const queryClient = useQueryClient();
@@ -50,7 +56,7 @@ export default function SignUpForm() {
 
   const [generalError, setGeneralError] = useState<string | null>(null);
 
-  const signUpMutation = useMutation<unknown, Error, FormValues>({
+  const signUpMutation = useMutation<SignUpResult, SignUpError, FormValues>({
     mutationFn: (data: FormValues) =>
       authClient.signUp.email({
         email: data.email,
@@ -60,8 +66,8 @@ export default function SignUpForm() {
     onMutate: () => {
       setGeneralError(null);
     },
-    onSuccess: (ctx) => {
-      if (ctx?.error?.status === 422) {
+    onSuccess: (data: SignUpResult) => {
+      if (data?.error?.status === 422) {
         setGeneralError("El correo ingresado ya esta en uso");
         return;
       }
@@ -69,7 +75,7 @@ export default function SignUpForm() {
       queryClient.invalidateQueries({ queryKey: ["session"] });
       router.push("/verify-email");
     },
-    onError: (err: any) => {
+    onError: (err: SignUpError) => {
       if (err?.status === 422 || err?.code === "API_ERROR") {
         setGeneralError("El correo ingresado ya esta en uso");
         return;
