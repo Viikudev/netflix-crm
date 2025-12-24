@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+### Required environment variables
+
+Set these in Vercel → Project → Settings → Environment Variables (Production + Preview as needed):
+
+- `DATABASE_URL`
+- `BETTER_AUTH_SECRET` (do not use the default secret)
+- `NEXT_PUBLIC_APP_URL` (e.g. `https://netflix-crm.vercel.app`)
+- `RESEND_API_KEY` (if using email features)
