@@ -1,13 +1,10 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { Resend } from "resend";
-// import { sendEmail } from "@/lib/resend";
+import { getResend } from "@/lib/resend";
 // If your Prisma file is located elsewhere, you can change the path
 import prisma from "@/lib/db";
 import TwitchResetPasswordEmail from "@/components/emails/ResetPassword";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -33,6 +30,12 @@ export const auth = betterAuth({
         resetUrl,
       });
 
+      const resend = getResend();
+      if (!resend) {
+        console.warn("RESEND_API_KEY not set; skipping reset password email");
+        return;
+      }
+
       await resend.emails.send({
         from: "onboarding@resend.dev",
         to: user.email!,
@@ -53,6 +56,12 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
+      const resend = getResend();
+      if (!resend) {
+        console.warn("RESEND_API_KEY not set; skipping verification email");
+        return;
+      }
+
       await resend.emails.send({
         from: "onboarding@resend.dev",
         to: user.email!,
