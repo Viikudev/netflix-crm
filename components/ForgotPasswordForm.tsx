@@ -89,18 +89,35 @@ export default function ForgotPasswordForm() {
       }
 
       // Proceed with password reset request
+      const redirectTo = new URL(
+        "/reset-password",
+        typeof window !== "undefined"
+          ? window.location.origin
+          : "http://localhost:3000",
+      ).toString();
+
       return authClient.requestPasswordReset({
         email: data.email,
-        redirectTo: "/reset-password",
+        redirectTo,
       });
     },
     onSuccess: (res: unknown) => {
       if (res && typeof res === "object" && "error" in res) {
-        const error = (res as { error?: { message?: string } }).error;
-        const message = error?.message || "Error al solicitar reinicio";
-        // Only one field in the form, so always surface the error there
-        form.setError("email", { type: "server", message });
-        return;
+        const error = (res as { error?: unknown }).error;
+
+        // Some APIs return `{ error: null }` on success. Only treat as error if it's truthy.
+        if (error) {
+          const message =
+            (typeof error === "object" && "message" in error
+              ? String((error as { message?: unknown }).message ?? "")
+              : "") ||
+            (typeof error === "string" ? error : "") ||
+            "Error al solicitar reinicio";
+
+          // Only one field in the form, so always surface the error there
+          form.setError("email", { type: "server", message });
+          return;
+        }
       }
 
       setDialogOpen(true);
