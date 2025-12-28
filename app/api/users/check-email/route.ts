@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({ where: { email } });
 
     if (!user) {
       return NextResponse.json({ exists: false, emailVerified: false });
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       exists: true,
       emailVerified: !!user.emailVerified,
     });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ message: "Internal error" }, { status: 500 });
   }
 }

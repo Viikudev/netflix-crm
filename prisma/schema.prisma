@@ -23,6 +23,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  services      Service[]
 
   @@unique([email])
   @@map("user")
@@ -75,3 +76,34 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+model Service {
+  id          String   @id @default(uuid())
+  serviceName String
+  description String?
+  price       Int
+  currency    String   @default("USD")
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([createdById])
+  @@map("services")
+}
+
+model ActiveAccount {
+  id             String   @id @default(uuid())
+  email          String
+  password       String
+  expirationDate DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([email])
+  @@map("active_account")
+}
+
+

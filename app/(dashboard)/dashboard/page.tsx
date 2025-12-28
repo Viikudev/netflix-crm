@@ -1,7 +1,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import SignOutButton from "@/components/SignOutButton";
 import { redirect } from "next/navigation";
+import ServicesSection from "@/components/ServicesSection";
+import ActiveAccountsSection from "@/components/ActiveAccountsSection";
 
 export default async function ResetPasswordPage() {
   const session = await auth.api.getSession({
@@ -13,11 +14,10 @@ export default async function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">STREAMING PZO DASHBOARD</h1>
-      <div className="mt-8 text-center">
-        <SignOutButton />
-      </div>
+    <div className="mx-10 grid grid-cols-2 gap-4">
+      <ServicesSection />
+      <ActiveAccountsSection />
+      <ServicesSection />
     </div>
   );
 }
