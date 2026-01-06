@@ -90,6 +90,8 @@ model Service {
   createdById String?
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
+  clientStatuses ClientStatus[]
+
   @@index([createdById])
   @@map("services")
 }
@@ -102,8 +104,37 @@ model ActiveAccount {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  clientStatuses ClientStatus[]
+
   @@unique([email])
   @@map("active_account")
+}
+
+
+enum ClientStatusEnum {
+  ACTIVE
+  EXPIRED
+  NEAR_EXPIRATION
+}
+
+model ClientStatus {
+  id              String           @id @default(uuid())
+  clientName      String
+  phoneNumber     String
+  activeAccountId String
+  activeAccount   ActiveAccount    @relation(fields: [activeAccountId], references: [id], onDelete: Cascade)
+  serviceId       String
+  service         Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  profileName     String
+  profilePIN      Int
+  expirationDate  DateTime?
+  status          ClientStatusEnum
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([activeAccountId])
+  @@index([serviceId])
+  @@map("client_status")
 }
 
 

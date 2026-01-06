@@ -21,7 +21,7 @@ export default function Header() {
     }
   };
   return (
-    <header className="flex justify-between p-2">
+    <header className="mx-10 flex justify-between py-4 max-sm:mx-4">
       <h1 className="text-2xl font-bold">Streamings PZO</h1>
       <DropdownMenu>
         <DropdownMenuTrigger>Account</DropdownMenuTrigger>

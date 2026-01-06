@@ -4,6 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import CreateAccountDialog from "./CreateAccountDialog";
 import { fetchActiveAccount } from "@/services/activeAccount";
 import type { ActiveAccountProps } from "@/types/activeAccount";
+import ActiveAccountActions from "@/components/ActiveAccountActions";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  // ItemTitle,
+} from "@/components/ui/item";
 
 export default function ActiveAccountsSection() {
   const { data, isLoading, isError, error } = useQuery({
@@ -12,13 +20,13 @@ export default function ActiveAccountsSection() {
   });
 
   return (
-    <div className="flex flex-col rounded-xl bg-white p-4 shadow-md">
-      <div className="flex justify-between">
+    <div className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-md">
+      <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold">Correos Activos</h2>
         <CreateAccountDialog />
       </div>
 
-      <div className="mt-4">
+      <div>
         {isLoading && <div>Loading active accounts...</div>}
         {isError && (
           <div className="text-red-600">
@@ -31,29 +39,35 @@ export default function ActiveAccountsSection() {
         )}
 
         {!isLoading && !isError && data && data.length > 0 && (
-          <ul className="grid grid-cols-2">
+          <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
             {data.map((activeAccount: ActiveAccountProps) => (
-              <li
+              <Item
                 key={activeAccount.id}
-                className="flex flex-col items-start justify-between rounded-md border p-2"
+                variant="outline"
+                className="col-span-1 items-start"
               >
-                <div className="flex items-baseline gap-1">
-                  <p className="text-md font-bold">Correo:</p>
-                  <p className="text-sm">{activeAccount.email}</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <p className="text-md font-bold">Contraseña:</p>
-                  <p className="text-sm">{activeAccount.password}</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <p className="text-md font-bold">Fecha de expiracion:</p>
-                  <p className="text-sm">
-                    {new Date(activeAccount.expirationDate).toLocaleString()}
-                  </p>
-                </div>
-              </li>
+                <ItemContent>
+                  <ItemDescription className="text-black">
+                    <span className="font-semibold">Correo:</span>{" "}
+                    {activeAccount.email}
+                  </ItemDescription>
+                  <ItemDescription className="text-black">
+                    <span className="font-semibold">Contraseña:</span>{" "}
+                    {activeAccount.password}
+                  </ItemDescription>
+                  <ItemDescription className="text-black">
+                    <span className="font-semibold">Expira:</span>{" "}
+                    {new Date(
+                      activeAccount.expirationDate,
+                    ).toLocaleDateString()}
+                  </ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <ActiveAccountActions activeAccount={activeAccount} />
+                </ItemActions>
+              </Item>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
