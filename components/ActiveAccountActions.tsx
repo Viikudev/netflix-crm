@@ -86,14 +86,14 @@ export default function ActiveAccountActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setShowUpdateDialog(true)}>
-            <Pencil className="mr-2 h-4 w-4" />
+            <Pencil className="h-4 w-4" />
             <span>Editar</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
-            className="text-destructive focus:text-destructive"
+            className="focus:bg-destructive/10 text-destructive focus:text-destructive"
           >
-            <Trash className="mr-2 h-4 w-4" />
+            <Trash className="text-destructive h-4 w-4" />
             <span>Eliminar</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

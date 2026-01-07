@@ -35,7 +35,9 @@ export default function ActiveAccountsSection() {
         )}
 
         {!isLoading && !isError && (!data || data.length === 0) && (
-          <div>No active accounts found.</div>
+          <div className="text-muted-foreground flex h-20 items-center justify-center text-sm">
+            No se encontraron cuentas activas
+          </div>
         )}
 
         {!isLoading && !isError && data && data.length > 0 && (

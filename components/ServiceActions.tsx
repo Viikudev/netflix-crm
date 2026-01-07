@@ -84,14 +84,14 @@ export default function ServiceActions({ service }: ServiceActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setShowUpdateDialog(true)}>
-            <Pencil className="mr-2 h-4 w-4" />
+            <Pencil className="h-4 w-4" />
             <span>Editar</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
-            className="text-destructive focus:text-destructive"
+            className="text-destructive focus:text-destructive focus:bg-destructive/10"
           >
-            <Trash className="mr-2 h-4 w-4" />
+            <Trash className="text-destructive h-4 w-4" />
             <span>Eliminar</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

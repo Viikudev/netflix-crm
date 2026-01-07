@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/item";
 
 export default function ServicesSection() {
-  const services = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["services"],
     queryFn: fetchServices,
   });
@@ -25,24 +25,42 @@ export default function ServicesSection() {
         <h2 className="text-lg font-bold">Servicios</h2>
         <CreateServiceDialog />
       </div>
-      <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1">
-        {services.data?.map((service: ServiceProps) => (
-          <Item
-            key={service.id}
-            variant="outline"
-            className="col-span-1 items-center"
-          >
-            <ItemContent>
-              <ItemTitle>{service.serviceName}</ItemTitle>
-              <ItemDescription>
-                Precio: {(service.price / 100).toFixed(2)} {service.currency}
-              </ItemDescription>
-            </ItemContent>
-            <ItemActions>
-              <ServiceActions service={service} />
-            </ItemActions>
-          </Item>
-        ))}
+
+      <div>
+        {isLoading && <div>Loading services...</div>}
+        {isError && (
+          <div className="text-red-600">
+            Error loading services: {error?.message ?? String(error)}
+          </div>
+        )}
+
+        {!isLoading && !isError && (!data || data.length === 0) && (
+          <div className="text-muted-foreground flex h-20 items-center justify-center text-sm">
+            No se encontraron servicios
+          </div>
+        )}
+
+        {!isLoading && !isError && data && data.length > 0 && (
+          <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1">
+            {data.map((service: ServiceProps) => (
+              <Item
+                key={service.id}
+                variant="outline"
+                className="col-span-1 items-center"
+              >
+                <ItemContent>
+                  <ItemTitle>{service.serviceName}</ItemTitle>
+                  <ItemDescription>
+                    Precio: {(service.price / 100).toFixed(2)} {service.currency}
+                  </ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <ServiceActions service={service} />
+                </ItemActions>
+              </Item>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

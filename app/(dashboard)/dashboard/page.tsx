@@ -27,7 +27,7 @@ export default async function ResetPasswordPage() {
 
   return (
     <div className="mx-10 grid grid-cols-2 gap-4 max-sm:mx-4 max-sm:grid-cols-1">
-      <div className="col-span-2 max-sm:col-span-1 sm:place-items-end">
+      <div className="col-span-2 max-sm:col-span-1 sm:place-items-start">
         <BinancePriceCard price={price} />
       </div>
       <ServicesSection />
