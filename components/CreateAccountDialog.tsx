@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createActiveAccount } from "@/services/activeAccount";
 import { CalendarIcon } from "lucide-react";
-import { format, isValid, parse } from "date-fns";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import type { AxiosError } from "axios";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,58 +31,40 @@ import { Label } from "@/components/ui/label";
 type FormValues = {
   email: string;
   password: string;
-  expirationDate: string; // datetime-local value
 };
 
 export default function CreateAccountDialog() {
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [expirationText, setExpirationText] = useState<string>("");
+  const [date, setDate] = useState<Date | undefined>();
+  const queryClient = useQueryClient();
 
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    defaultValues: { email: "", password: "", expirationDate: "" },
+    defaultValues: { email: "", password: "" },
   });
-
-  const selectedDate = useMemo(() => {
-    const trimmed = expirationText.trim();
-    if (!trimmed) return undefined;
-
-    // Primary display format: "May 31, 2025"
-    const parsedShort = parse(trimmed, "MMM d, yyyy", new Date());
-    if (isValid(parsedShort)) return parsedShort;
-
-    // Allow full month names too: "May" vs "May" (e.g. "September 1, 2025")
-    const parsedLong = parse(trimmed, "MMMM d, yyyy", new Date());
-    if (isValid(parsedLong)) return parsedLong;
-
-    // Back-compat: allow manual numeric entry if someone types it.
-    const parsedNumeric = parse(trimmed, "dd-MM-yyyy", new Date());
-    if (trimmed.length === 10 && isValid(parsedNumeric)) return parsedNumeric;
-
-    return undefined;
-  }, [expirationText]);
 
   const mutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      // convert datetime-local to ISO
-      const iso = new Date(data.expirationDate).toISOString();
+      let expirationDate = new Date().toISOString();
+      if (date) {
+        expirationDate = date.toISOString();
+      }
       return await createActiveAccount({
         email: data.email,
         password: data.password,
-        expirationDate: iso,
+        expirationDate,
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activeAccounts"] });
       reset();
       setServerError(null);
-      setExpirationText("");
+      setDate(undefined);
       setOpen(false);
     },
     onError: (err: unknown) => {
@@ -93,6 +77,10 @@ export default function CreateAccountDialog() {
   });
 
   const onSubmit = async (values: FormValues) => {
+    if (!date) {
+      setServerError("La fecha de expiración es obligatoria");
+      return;
+    }
     setServerError(null);
     await mutation.mutateAsync(values);
   };
@@ -118,6 +106,7 @@ export default function CreateAccountDialog() {
               {...register("email", {
                 required: "El correo electrónico es obligatorio",
               })}
+              placeholder="Ej: cuentanetflix@gmail.com"
             />
             {errors.email && (
               <p className="text-destructive">{String(errors.email.message)}</p>
@@ -131,6 +120,7 @@ export default function CreateAccountDialog() {
               {...register("password", {
                 required: "La contraseña es obligatoria",
               })}
+              placeholder="Ingrese una contraseña valida"
             />
             {errors.password && (
               <p className="text-destructive">
@@ -139,123 +129,55 @@ export default function CreateAccountDialog() {
             )}
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <Label>Fecha de Expiración</Label>
-
-            <input
-              type="hidden"
-              {...register("expirationDate", {
-                required: "La fecha de expiración es obligatoria",
-              })}
-            />
-
-            <div className="relative">
-              <Input
-                placeholder="May 31, 2025"
-                value={expirationText}
-                onChange={(e) => {
-                  const nextText = e.target.value;
-                  setExpirationText(nextText);
-
-                  const parsed = (() => {
-                    const trimmed = nextText.trim();
-                    if (!trimmed) return undefined;
-                    const short = parse(trimmed, "MMM d, yyyy", new Date());
-                    if (isValid(short)) return short;
-                    const long = parse(trimmed, "MMMM d, yyyy", new Date());
-                    if (isValid(long)) return long;
-                    const numeric = parse(trimmed, "dd-MM-yyyy", new Date());
-                    if (trimmed.length === 10 && isValid(numeric))
-                      return numeric;
-                    return undefined;
-                  })();
-
-                  if (parsed) {
-                    setValue("expirationDate", parsed.toISOString(), {
-                      shouldValidate: true,
-                    });
-                  }
-                }}
-                onBlur={() => {
-                  if (!expirationText) {
-                    setValue("expirationDate", "", { shouldValidate: true });
-                    return;
-                  }
-
-                  const trimmed = expirationText.trim();
-                  const parsed = (() => {
-                    const short = parse(trimmed, "MMM d, yyyy", new Date());
-                    if (isValid(short)) return short;
-                    const long = parse(trimmed, "MMMM d, yyyy", new Date());
-                    if (isValid(long)) return long;
-                    const numeric = parse(trimmed, "dd-MM-yyyy", new Date());
-                    if (trimmed.length === 10 && isValid(numeric))
-                      return numeric;
-                    return undefined;
-                  })();
-
-                  if (!parsed) {
-                    setValue("expirationDate", "", { shouldValidate: true });
-                    return;
-                  }
-
-                  setExpirationText(format(parsed, "MMM d, yyyy"));
-                  setValue("expirationDate", parsed.toISOString(), {
-                    shouldValidate: true,
-                  });
-                }}
-              />
-
-              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-1/2 right-1 -translate-y-1/2"
-                    aria-label="Abrir calendario"
-                  >
-                    <CalendarIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <div className="p-2">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={(d) => {
-                        if (!d) return;
-                        setExpirationText(format(d, "MMM d, yyyy"));
-                        setValue("expirationDate", d.toISOString(), {
-                          shouldValidate: true,
-                        });
-                        setCalendarOpen(false);
-                      }}
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {errors.expirationDate && (
-              <p className="text-destructive">
-                {String(errors.expirationDate.message)}
-              </p>
-            )}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? (
+                    format(date, "PPP", { locale: es })
+                  ) : (
+                    <span>Elige una fecha</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
-          {serverError && <p className="text-destructive">{serverError}</p>}
+          {serverError && (
+            <p className="text-destructive text-sm">{serverError}</p>
+          )}
 
-          <div className="flex justify-end gap-2">
+          <div className="mt-4 flex justify-end gap-2">
             <Button
               type="button"
               variant="ghost"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                reset();
+                setDate(undefined);
+                setServerError(null);
+              }}
             >
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || mutation.isPending}>
-              {isSubmitting || mutation.isPending ? "Creando..." : "Crear"}
+              {mutation.isPending ? "Creando..." : "Crear"}
             </Button>
           </div>
         </form>

@@ -5,8 +5,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteClientStatus } from "@/services/clientStatus";
 import { ClientStatus } from "@/types/clientStatus";
 import UpdateClientStatusDialog from "@/components/UpdateClientStatusDialog";
+import ClientStatusRenewDialog from "@/components/ClientStatusRenewDialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash, CreditCard } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +18,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ClientStatusActionsProps {
   clientStatus: ClientStatus;
@@ -27,6 +33,7 @@ export default function ClientStatusActions({
 }: ClientStatusActionsProps) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showRenewDialog, setShowRenewDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -50,6 +57,12 @@ export default function ClientStatusActions({
         onOpenChange={setShowUpdateDialog}
       />
 
+      <ClientStatusRenewDialog
+        clientStatus={clientStatus}
+        open={showRenewDialog}
+        onOpenChange={setShowRenewDialog}
+      />
+
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -71,16 +84,59 @@ export default function ClientStatusActions({
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowUpdateDialog(true)}
-          title="Editar"
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
-        <Button
+      <div className="flex items-center justify-start gap-3">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowUpdateDialog(true)}
+              // title="Editar"
+              className="size-7! cursor-pointer rounded-md bg-neutral-200 text-black hover:bg-neutral-200 hover:text-black"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Editar cliente</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-destructive hover:text-destructive! size-7! cursor-pointer rounded-md bg-red-200!"
+              // title="Eliminar"
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Eliminar cliente</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowRenewDialog(true)}
+              className="size-7! cursor-pointer rounded-md bg-black! text-white hover:text-white!"
+              // title="Renovar"
+            >
+              <CreditCard className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Renovar cliente</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* <Button
           variant="ghost"
           size="icon"
           onClick={() => setShowDeleteDialog(true)}
@@ -88,7 +144,7 @@ export default function ClientStatusActions({
           title="Eliminar"
         >
           <Trash className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </div>
     </>
   );

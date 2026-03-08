@@ -10,8 +10,7 @@ export async function POST(req: Request) {
       phoneNumber,
       activeAccountId,
       serviceId,
-      profileName,
-      profilePIN,
+      screenId,
       status,
     } = body ?? {};
 
@@ -43,20 +42,9 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!profileName || typeof profileName !== "string") {
+    if (!screenId || typeof screenId !== "string") {
       return NextResponse.json(
-        { message: "profileName is required" },
-        { status: 400 },
-      );
-    }
-
-    if (
-      profilePIN === undefined ||
-      profilePIN === null ||
-      typeof profilePIN !== "number"
-    ) {
-      return NextResponse.json(
-        { message: "profilePIN is required and must be a number" },
+        { message: "screenId is required" },
         { status: 400 },
       );
     }
@@ -96,6 +84,16 @@ export async function POST(req: Request) {
       );
     }
 
+    const screenExists = await prisma.screen.findUnique({
+      where: { id: screenId },
+    });
+    if (!screenExists) {
+      return NextResponse.json(
+        { message: "screen not found" },
+        { status: 404 },
+      );
+    }
+
     // If the client provided an expirationDate use it, otherwise fall back to the
     // active account's expirationDate (or null).
     const providedExpiration =
@@ -109,8 +107,7 @@ export async function POST(req: Request) {
         phoneNumber,
         activeAccountId,
         serviceId,
-        profileName,
-        profilePIN,
+        screenId,
         expirationDate:
           providedExpiration ?? accountExists.expirationDate ?? null,
         status: status as ClientStatusEnum,
@@ -152,6 +149,7 @@ export async function GET() {
           select: { id: true, email: true, expirationDate: true },
         },
         service: { select: { id: true, serviceName: true } },
+        screen: { select: { id: true, profileName: true, profilePIN: true } },
       },
     });
 

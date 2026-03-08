@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteActiveAccount } from "@/services/activeAccount";
 import type { ActiveAccountProps } from "@/types/activeAccount";
 import UpdateActiveAccountDialog from "@/components/UpdateActiveAccountDialog";
+import CreateScreenDialog from "@/components/CreateScreenDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,7 @@ export default function ActiveAccountActions({
 }: ActiveAccountActionsProps) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showCreateScreenDialog, setShowCreateScreenDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -54,6 +56,12 @@ export default function ActiveAccountActions({
         activeAccount={activeAccount}
         open={showUpdateDialog}
         onOpenChange={setShowUpdateDialog}
+      />
+
+      <CreateScreenDialog
+        activeAccountId={activeAccount.id}
+        open={showCreateScreenDialog}
+        onOpenChange={setShowCreateScreenDialog}
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -88,6 +96,10 @@ export default function ActiveAccountActions({
           <DropdownMenuItem onClick={() => setShowUpdateDialog(true)}>
             <Pencil className="h-4 w-4" />
             <span>Editar</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowCreateScreenDialog(true)}>
+            <Plus className="h-4 w-4" />
+            <span>Agregar pantalla</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}

@@ -51,7 +51,8 @@ export default function ServicesSection() {
                 <ItemContent>
                   <ItemTitle>{service.serviceName}</ItemTitle>
                   <ItemDescription>
-                    Precio: {(service.price / 100).toFixed(2)} {service.currency}
+                    Precio: {(service.price / 100).toFixed(2)}{" "}
+                    {service.currency}
                   </ItemDescription>
                 </ItemContent>
                 <ItemActions>

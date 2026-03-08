@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ClientStatus } from "@/types/clientStatus";
 import ClientStatusActions from "@/components/ClientStatusActions";
 import { differenceInDays } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 const STATUS_LABEL: Record<string, string> = {
   ACTIVE: "Activo",
@@ -31,12 +32,14 @@ export const columns: ColumnDef<ClientStatus>[] = [
     accessorFn: (row) => row.service?.serviceName ?? row.serviceId,
   },
   {
-    accessorKey: "profileName",
+    id: "profileName",
     header: "Perfil",
+    accessorFn: (row) => row.screen?.profileName ?? "-",
   },
   {
-    accessorKey: "profilePIN",
+    id: "profilePIN",
     header: "PIN",
+    accessorFn: (row) => row.screen?.profilePIN ?? "-",
   },
   {
     accessorKey: "expirationDate",
@@ -56,7 +59,15 @@ export const columns: ColumnDef<ClientStatus>[] = [
     header: "Estado de pago",
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
-      return STATUS_LABEL[status] ?? status;
+      const label = STATUS_LABEL[status] ?? status;
+
+      if (status === "ACTIVE") {
+        return <Badge className="bg-green-200 text-green-700">{label}</Badge>;
+      }
+      if (status === "EXPIRED") {
+        return <Badge className="bg-red-200 text-red-700">{label}</Badge>;
+      }
+      return <Badge variant="secondary">{label}</Badge>;
     },
   },
   {

@@ -30,14 +30,49 @@ export const createClientStatusSchema = z.object({
   phoneNumber: z.string().min(1, "Required"),
   activeAccountId: z.string().min(1, "Required"),
   serviceId: z.string().min(1, "Required"),
+  screenId: z.string().min(1, "Required"),
+  status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]),
+  expirationDate: z.string().optional().nullable(),
+});
+
+export type CreateClientStatusValues = z.infer<typeof createClientStatusSchema>;
+
+export const renewClientStatusSchema = z.object({
+  expirationDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid date string",
+  }),
+});
+
+export type RenewClientStatusValues = z.infer<typeof renewClientStatusSchema>;
+
+export const createScreenSchema = z.object({
   profileName: z.string().min(1, "Required"),
   profilePIN: z.coerce
     .number()
     .int()
     .gte(1000, "Must be at least 4 digits")
     .lte(9999, "Must be no more than 4 digits"),
-  status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]),
-  expirationDate: z.string().optional().nullable(),
+  activeAccountId: z.string().min(1, "Required"),
 });
 
-export type CreateClientStatusValues = z.infer<typeof createClientStatusSchema>;
+export type CreateScreenValues = z.infer<typeof createScreenSchema>;
+
+// export const updateScreenSchema = z.object({
+//   profileName: z.string().min(1, "Required").optional(),
+//   profilePIN: z.coerce
+//     .number()
+//     .int()
+//     .gte(1000, "Must be at least 4 digits")
+//     .lte(9999, "Must be no more than 4 digits")
+//     .optional(),
+// });
+
+// export type UpdateScreenValues = z.infer<typeof updateScreenSchema>;
+
+export const updateScreenSchema = z.object({
+  profileName: z.string().optional(),
+  profilePIN: z.number().optional(), // Make sure this is z.number() and not missing/unknown
+});
+
+// Best practice: infer the type directly from the schema
+export type UpdateScreenValues = z.infer<typeof updateScreenSchema>;

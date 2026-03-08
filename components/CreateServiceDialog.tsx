@@ -81,7 +81,7 @@ export default function CreateServiceDialog() {
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <div>
             <Label>Nombre del servicio</Label>
-            <Input {...register("serviceName")} />
+            <Input {...register("serviceName")} placeholder="Ej: Netflix" />
             {errors.serviceName && (
               <p className="text-destructive">
                 {String(errors.serviceName.message)}
@@ -95,13 +95,14 @@ export default function CreateServiceDialog() {
               type="number"
               step="0.01"
               {...register("price", { valueAsNumber: true })}
+              placeholder="Ej: 4.00"
             />
             {errors.price && (
               <p className="text-destructive">{String(errors.price.message)}</p>
             )}
           </div>
 
-          <div>
+          {/* <div>
             <Label>URL de la imagen</Label>
             <Input {...register("imageUrl")} />
             {errors.imageUrl && (
@@ -109,11 +110,14 @@ export default function CreateServiceDialog() {
                 {String(errors.imageUrl.message)}
               </p>
             )}
-          </div>
+          </div> */}
 
           <div>
             <Label>Descripción</Label>
-            <Textarea {...register("description")} />
+            <Textarea
+              {...register("description")}
+              placeholder="Ej: Servicio principal peliculas y series enfocadas en la juventud"
+            />
           </div>
 
           <div className="flex justify-end gap-2">

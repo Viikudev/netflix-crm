@@ -6,8 +6,8 @@ export type ClientStatus = {
   activeAccount?: { id: string; email: string } | null;
   serviceId: string;
   service?: { id: string; serviceName: string } | null;
-  profileName: string;
-  profilePIN: number;
+  screenId: string;
+  screen?: { id: string; profileName: string; profilePIN: number } | null;
   expirationDate?: string | null;
   status: string;
   createdAt?: string;

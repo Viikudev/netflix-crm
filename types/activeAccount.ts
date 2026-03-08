@@ -3,4 +3,5 @@ export type ActiveAccountProps = {
   email: string;
   password: string;
   expirationDate: Date;
+  screens?: { id: string; profileName: string; profilePIN: number }[];
 };

@@ -1,20 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateClientStatus } from "@/services/clientStatus";
+import { fetchServices } from "@/services/services";
+import { fetchActiveAccount } from "@/services/activeAccount";
+import { fetchScreens } from "@/services/screens";
 import {
   createClientStatusSchema,
   CreateClientStatusValues,
 } from "@/lib/schemas";
 import { ClientStatus } from "@/types/clientStatus";
-import { fetchServices } from "@/services/services";
-import { fetchActiveAccount } from "@/services/activeAccount";
 import { ServiceProps } from "@/types/service";
 import { ActiveAccountProps } from "@/types/activeAccount";
-import { addDays, differenceInDays } from "date-fns";
+import { ScreenProps } from "@/types/screen";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectLabel,
+  SelectGroup,
 } from "@/components/ui/select";
 
 interface UpdateClientStatusDialogProps {
@@ -52,14 +55,11 @@ export default function UpdateClientStatusDialog({
   const setOpen = isControlled ? setControlledOpen : setUncontrolledOpen;
   const queryClient = useQueryClient();
 
-  const [days, setDays] = useState<number | "">(() => {
-    if (!clientStatus.expirationDate) return "";
-    const diff = differenceInDays(
-      new Date(clientStatus.expirationDate),
-      new Date(),
-    );
-    return diff >= 0 ? diff : 0;
-  });
+  const [date, setDate] = useState<Date | undefined>(
+    clientStatus.expirationDate
+      ? new Date(clientStatus.expirationDate)
+      : undefined,
+  );
 
   const services = useQuery<ServiceProps[]>({
     queryKey: ["services"],
@@ -75,6 +75,7 @@ export default function UpdateClientStatusDialog({
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(createClientStatusSchema),
@@ -83,8 +84,7 @@ export default function UpdateClientStatusDialog({
       phoneNumber: clientStatus.phoneNumber,
       activeAccountId: clientStatus.activeAccountId,
       serviceId: clientStatus.serviceId,
-      profileName: clientStatus.profileName,
-      profilePIN: Number(clientStatus.profilePIN),
+      screenId: clientStatus.screenId,
       status:
         (clientStatus.status as "ACTIVE" | "EXPIRED" | "NEAR_EXPIRATION") ??
         "NEAR_EXPIRATION",
@@ -94,11 +94,23 @@ export default function UpdateClientStatusDialog({
     },
   });
 
+  const selectedAccountId = useWatch({
+    control,
+    name: "activeAccountId",
+  });
+
+  const screens = useQuery<ScreenProps[]>({
+    queryKey: ["screens", selectedAccountId],
+    queryFn: () =>
+      selectedAccountId ? fetchScreens(selectedAccountId) : Promise.resolve([]),
+    enabled: !!selectedAccountId,
+  });
+
   const mutation = useMutation({
     mutationFn: async (data: CreateClientStatusValues) => {
       let expirationDate = data.expirationDate;
-      if (days !== "" && !isNaN(Number(days))) {
-        expirationDate = addDays(new Date(), Number(days)).toISOString();
+      if (date) {
+        expirationDate = date.toISOString();
       }
       return await updateClientStatus(clientStatus.id, {
         ...data,
@@ -146,128 +158,113 @@ export default function UpdateClientStatusDialog({
             )}
           </div>
 
-          <div>
-            <Label>Teléfono</Label>
-            <Input {...register("phoneNumber")} />
-            {errors.phoneNumber && (
-              <p className="text-destructive">
-                {String(errors.phoneNumber.message)}
-              </p>
-            )}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Teléfono</Label>
+              <Input {...register("phoneNumber")} />
+              {errors.phoneNumber && (
+                <p className="text-destructive">
+                  {String(errors.phoneNumber.message)}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label>Cuenta Activa</Label>
+              <Select
+                onValueChange={(val) => setValue("activeAccountId", val)}
+                defaultValue={clientStatus.activeAccountId}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Seleccione una cuenta" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Cuentas Activas</SelectLabel>
+                    {activeAccounts.data?.map((account: ActiveAccountProps) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.email}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {errors.activeAccountId && (
+                <p className="text-destructive">
+                  {String(errors.activeAccountId.message)}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div>
-            <Label>Cuenta Activa</Label>
-            <Select
-              onValueChange={(val) => setValue("activeAccountId", val)}
-              defaultValue={clientStatus.activeAccountId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccione una cuenta" />
-              </SelectTrigger>
-              <SelectContent>
-                {activeAccounts.data?.map((account: ActiveAccountProps) => (
-                  <SelectItem key={account.id} value={account.id}>
-                    {account.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.activeAccountId && (
-              <p className="text-destructive">
-                {String(errors.activeAccountId.message)}
-              </p>
-            )}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Servicio</Label>
+              <Select
+                onValueChange={(val) => setValue("serviceId", val)}
+                defaultValue={clientStatus.serviceId}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Seleccione un servicio" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Servicios</SelectLabel>
+                    {services.data?.map((service: ServiceProps) => (
+                      <SelectItem key={service.id} value={service.id}>
+                        {service.serviceName}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {errors.serviceId && (
+                <p className="text-destructive">
+                  {String(errors.serviceId.message)}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label>Perfil</Label>
+              <Select
+                onValueChange={(val) => setValue("screenId", val)}
+                defaultValue={clientStatus.screenId}
+                disabled={
+                  !selectedAccountId || (screens.data?.length ?? 0) === 0
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      !selectedAccountId
+                        ? "Seleccione una cuenta primero"
+                        : screens.data?.length === 0
+                          ? "No hay pantallas"
+                          : "Seleccione una pantalla"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Perfiles</SelectLabel>
+                    {screens.data?.map((screen: ScreenProps) => (
+                      <SelectItem key={screen.id} value={screen.id}>
+                        {screen.profileName} (PIN: {screen.profilePIN})
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {errors.screenId && (
+                <p className="text-destructive">
+                  {String(errors.screenId.message)}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div>
-            <Label>Servicio</Label>
-            <Select
-              onValueChange={(val) => setValue("serviceId", val)}
-              defaultValue={clientStatus.serviceId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccione un servicio" />
-              </SelectTrigger>
-              <SelectContent>
-                {services.data?.map((service: ServiceProps) => (
-                  <SelectItem key={service.id} value={service.id}>
-                    {service.serviceName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.serviceId && (
-              <p className="text-destructive">
-                {String(errors.serviceId.message)}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label>Nombre del Perfil</Label>
-            <Input {...register("profileName")} />
-            {errors.profileName && (
-              <p className="text-destructive">
-                {String(errors.profileName.message)}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label>PIN del Perfil</Label>
-            <Input
-              type="number"
-              {...register("profilePIN", { valueAsNumber: true })}
-            />
-            {errors.profilePIN && (
-              <p className="text-destructive">
-                {String(errors.profilePIN.message)}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label>Estado</Label>
-            <Select
-              onValueChange={(val) =>
-                setValue(
-                  "status",
-                  val as "ACTIVE" | "EXPIRED" | "NEAR_EXPIRATION",
-                )
-              }
-              defaultValue={clientStatus.status}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccione estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ACTIVE">Activo</SelectItem>
-                <SelectItem value="EXPIRED">Expirado</SelectItem>
-                <SelectItem value="NEAR_EXPIRATION">Por expirar</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.status && (
-              <p className="text-destructive">
-                {String(errors.status.message)}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label>Días de duración</Label>
-            <Input
-              type="number"
-              placeholder="Ej: 30"
-              value={days}
-              onChange={(e) => {
-                const val = e.target.value;
-                setDays(val === "" ? "" : Number(val));
-              }}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2">
+          <div className="mt-4 flex justify-end gap-2">
             <Button
               type="button"
               variant="ghost"

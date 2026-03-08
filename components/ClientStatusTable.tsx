@@ -62,7 +62,7 @@ export default function ClientStatusTable() {
     <Card className="col-span-2 gap-4 max-sm:col-span-1 max-sm:py-4">
       <CardHeader className="max-sm:px-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold">Clientes activos</CardTitle>
+          <CardTitle className="text-lg font-bold">Clientes </CardTitle>
           <CreateClientStatusDialog onCreated={handleCreated} />
         </div>
       </CardHeader>
@@ -77,13 +77,13 @@ export default function ClientStatusTable() {
           <DataTable
             columns={columns}
             data={clientStatuses ?? []}
-            getRowClassName={(row) => {
-              if (row.status === "ACTIVE")
-                return "bg-green-100 dark:bg-green-900/30";
-              if (row.status === "EXPIRED")
-                return "bg-red-100 dark:bg-red-900/30";
-              return "";
-            }}
+            // getRowClassName={(row) => {
+            //   if (row.status === "ACTIVE")
+            //     return "bg-green-100 dark:bg-green-900/30";
+            //   if (row.status === "EXPIRED")
+            //     return "bg-red-100 dark:bg-red-900/30";
+            //   return "";
+            // }}
           />
         )}
       </CardContent>

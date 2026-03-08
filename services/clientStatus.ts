@@ -5,8 +5,7 @@ export type CreateClientStatusPayload = {
   phoneNumber: string;
   activeAccountId: string;
   serviceId: string;
-  profileName: string;
-  profilePIN: number;
+  screenId: string;
   status: "ACTIVE" | "EXPIRED" | "NEAR_EXPIRATION";
   expirationDate?: string | null;
 };

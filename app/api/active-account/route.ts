@@ -59,10 +59,19 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const accounts = await prisma.activeAccount.findMany({
-      select: { id: true, email: true, password: true, expirationDate: true },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        expirationDate: true,
+        screens: {
+          select: { id: true, profileName: true, profilePIN: true },
+        },
+      },
     });
     return NextResponse.json(accounts, { status: 200 });
-  } catch {
+  } catch (error) {
+    console.error("GET Active Accounts error:", error);
     return NextResponse.json({ message: "Internal error" }, { status: 500 });
   }
 }
