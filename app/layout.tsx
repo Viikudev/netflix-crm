@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 antialiased`}
       >
         <ReactQueryProvider>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider delayDuration={500}>{children}</TooltipProvider>
         </ReactQueryProvider>
       </body>
     </html>

@@ -7,7 +7,9 @@ import { fetchActiveAccount } from "@/services/activeAccount";
 import type { ActiveAccountProps } from "@/types/activeAccount";
 import ActiveAccountActions from "@/components/ActiveAccountActions";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { ChevronDown, Copy } from "lucide-react";
+import { toast } from "sonner";
 import {
   Item,
   ItemActions,
@@ -31,6 +33,16 @@ function ActiveAccountCard({
   const [selectedScreen, setSelectedScreen] = useState<ScreenProps | null>(
     null,
   );
+
+  const handleCopyProfile = (e: React.MouseEvent, screen: ScreenProps) => {
+    e.stopPropagation();
+    const textToCopy = `Correo electronico: ${activeAccount.email}
+Contraseña: ${activeAccount.password}
+Perfil: ${screen.profileName}
+PIN: ${screen.profilePIN}`;
+    navigator.clipboard.writeText(textToCopy);
+    toast.success("Datos copiados al portapapeles");
+  };
 
   return (
     <Item variant="outline" className="col-span-1 items-start">
@@ -70,15 +82,15 @@ function ActiveAccountCard({
             </Button>
 
             <div
-              className={`grid w-full grid-cols-2 gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
-                showScreens ? "mt-2 max-h-40 opacity-100" : "max-h-0 opacity-0"
+              className={`grid w-full grid-cols-1 gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                showScreens ? "mt-2 max-h-70 opacity-100" : "max-h-0 opacity-0"
               }`}
             >
               {activeAccount.screens.map((screen) => (
                 <Tooltip key={screen.id}>
-                  <TooltipTrigger className="w-fit">
+                  <TooltipTrigger>
                     <div
-                      className="w-fit cursor-pointer rounded-full border px-4 py-1 font-medium text-neutral-600 transition-colors hover:bg-neutral-100"
+                      className="group flex cursor-pointer items-center justify-between gap-2 rounded-full border py-1 pr-1 pl-4 font-medium text-neutral-600 transition-colors"
                       onClick={() =>
                         setSelectedScreen({
                           ...screen,
@@ -86,10 +98,38 @@ function ActiveAccountCard({
                         })
                       }
                     >
-                      <p className="text-left text-sm">{screen.profileName}</p>
-                      <p className="text-left text-xs text-neutral-400">
-                        PIN: {screen.profilePIN}
-                      </p>
+                      <div className="flex flex-col pr-2">
+                        <p className="flex h-4 items-center gap-2 text-left text-sm">
+                          <span>{screen.profileName}</span>
+                          <Separator orientation="vertical" />
+                          <span className="text-left text-xs text-neutral-400">
+                            PIN: {screen.profilePIN}
+                          </span>
+                        </p>
+                        {/* <p className="text-left text-xs text-neutral-400">
+                          PIN: {screen.profilePIN}
+                        </p> */}
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0 rounded-full transition-opacity group-hover:opacity-100 hover:bg-transparent!"
+                            onClick={(e) =>
+                              handleCopyProfile(e, {
+                                ...screen,
+                                activeAccountId: activeAccount.id,
+                              })
+                            }
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Copiar al portapapeles</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>

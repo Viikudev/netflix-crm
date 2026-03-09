@@ -120,7 +120,7 @@ export default function CreateAccountDialog() {
               {...register("password", {
                 required: "La contraseña es obligatoria",
               })}
-              placeholder="Ingrese una contraseña valida"
+              placeholder="Ingrese la contraseña para la cuenta activa"
             />
             {errors.password && (
               <p className="text-destructive">

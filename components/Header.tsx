@@ -35,7 +35,7 @@ export default function Header() {
     }
   };
   return (
-    <header className="mx-10 flex justify-between py-4 max-sm:mx-4">
+    <header className="mx-10 flex items-center justify-between py-4 max-sm:mx-4">
       <h1 className="text-2xl font-bold">Streamings PZO</h1>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex cursor-pointer items-center gap-3 rounded-xl p-2 text-left transition hover:bg-neutral-200/50">
@@ -48,12 +48,12 @@ export default function Header() {
               {getInitials(session?.user?.name)}
             </AvatarFallback>
           </Avatar>
-          <div>
+          <div className="max-sm:hidden">
             <p className="font-medium">{session?.user?.name}</p>
             <p className="text-sm text-neutral-500">{session?.user?.email}</p>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="end">
           <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={signOutAction} data-variant="destructive">

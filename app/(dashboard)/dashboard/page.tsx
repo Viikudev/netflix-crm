@@ -26,7 +26,7 @@ export default async function ResetPasswordPage() {
   // console.log("P2P USDT Price in VES:", price);
 
   return (
-    <div className="mx-10 grid grid-cols-2 gap-4 max-sm:mx-4 max-sm:grid-cols-1">
+    <div className="mx-10 grid grid-cols-2 gap-4 pb-10 max-sm:mx-4 max-sm:grid-cols-1">
       <div className="col-span-2 max-sm:col-span-1 sm:place-items-start">
         <BinancePriceCard price={price} />
       </div>
