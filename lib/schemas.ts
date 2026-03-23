@@ -85,6 +85,22 @@ export const renewClientStatusSchema = z
 
 export type RenewClientStatusValues = z.infer<typeof renewClientStatusSchema>;
 
+export const updateClientStatusSchema = z.object({
+  clientName: z
+    .string()
+    .max(40, "El nombre del cliente debe tener como máximo 20 caracteres")
+    .min(1, "Required"),
+  phoneNumber: z.string().min(1, "Required"),
+  activeAccountId: z.string().min(1, "Required"),
+  serviceId: z.string().min(1, "Required"),
+  screenId: z.string().min(1, "Required"),
+  status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]),
+  expirationDate: z.string().optional().nullable(),
+  amount: z.number().int().optional().nullable(),
+});
+
+export type UpdateClientStatusValues = z.infer<typeof updateClientStatusSchema>;
+
 export const createScreenSchema = z.object({
   profileName: z.string().min(1, "Required"),
   profilePIN: z.coerce

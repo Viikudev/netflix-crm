@@ -9,8 +9,8 @@ import { fetchServices } from "@/services/services";
 import { fetchActiveAccount } from "@/services/activeAccount";
 import { fetchScreens } from "@/services/screens";
 import {
-  createClientStatusSchema,
-  CreateClientStatusValues,
+  updateClientStatusSchema,
+  UpdateClientStatusValues,
 } from "@/lib/schemas";
 import { ClientStatus } from "@/types/clientStatus";
 import { ServiceProps } from "@/types/service";
@@ -55,12 +55,6 @@ export default function UpdateClientStatusDialog({
   const setOpen = isControlled ? setControlledOpen : setUncontrolledOpen;
   const queryClient = useQueryClient();
 
-  const [date, setDate] = useState<Date | undefined>(
-    clientStatus.expirationDate
-      ? new Date(clientStatus.expirationDate)
-      : undefined,
-  );
-
   const services = useQuery<ServiceProps[]>({
     queryKey: ["services"],
     queryFn: fetchServices,
@@ -78,7 +72,7 @@ export default function UpdateClientStatusDialog({
     control,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(createClientStatusSchema),
+    resolver: zodResolver(updateClientStatusSchema),
     defaultValues: {
       clientName: clientStatus.clientName,
       phoneNumber: clientStatus.phoneNumber,
@@ -107,14 +101,9 @@ export default function UpdateClientStatusDialog({
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: CreateClientStatusValues) => {
-      let expirationDate = data.expirationDate;
-      if (date) {
-        expirationDate = date.toISOString();
-      }
+    mutationFn: async (data: UpdateClientStatusValues) => {
       return await updateClientStatus(clientStatus.id, {
         ...data,
-        expirationDate,
       });
     },
     onSuccess: () => {
@@ -126,7 +115,7 @@ export default function UpdateClientStatusDialog({
     },
   });
 
-  const onSubmit = async (values: CreateClientStatusValues) => {
+  const onSubmit = async (values: UpdateClientStatusValues) => {
     await mutation.mutateAsync(values);
   };
 

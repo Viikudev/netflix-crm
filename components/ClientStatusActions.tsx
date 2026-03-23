@@ -6,8 +6,9 @@ import { deleteClientStatus } from "@/services/clientStatus";
 import { ClientStatus } from "@/types/clientStatus";
 import UpdateClientStatusDialog from "@/components/UpdateClientStatusDialog";
 import ClientStatusRenewDialog from "@/components/ClientStatusRenewDialog";
+import ClientStatusMessageDialog from "@/components/ClientStatusMessageDialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash, CreditCard } from "lucide-react";
+import { Pencil, Trash, CreditCard, MessageCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +35,7 @@ export default function ClientStatusActions({
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showRenewDialog, setShowRenewDialog] = useState(false);
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -61,6 +63,13 @@ export default function ClientStatusActions({
         clientStatus={clientStatus}
         open={showRenewDialog}
         onOpenChange={setShowRenewDialog}
+      />
+
+      <ClientStatusMessageDialog
+        clientName={clientStatus.clientName}
+        phoneNumber={clientStatus.phoneNumber}
+        open={showMessageDialog}
+        onOpenChange={setShowMessageDialog}
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -133,6 +142,23 @@ export default function ClientStatusActions({
           </TooltipTrigger>
           <TooltipContent>
             <p>Renovar cliente</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowMessageDialog(true)}
+              className="size-7! cursor-pointer rounded-md bg-green-500! text-white hover:text-white!"
+              // title="Enviar mensaje"
+            >
+              <MessageCircle className="h-4 w-4" strokeWidth={3} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Enviar WhatsApp</p>
           </TooltipContent>
         </Tooltip>
 
