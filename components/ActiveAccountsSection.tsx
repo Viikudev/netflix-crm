@@ -180,7 +180,7 @@ export default function ActiveAccountsSection() {
         )}
 
         {!isLoading && !isError && data && data.length > 0 && (
-          <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
+          <div className="grid grid-cols-2 gap-4 max-xl:grid-cols-1">
             {data.map((activeAccount: ActiveAccountProps) => (
               <ActiveAccountCard
                 key={activeAccount.id}

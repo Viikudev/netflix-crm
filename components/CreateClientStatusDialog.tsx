@@ -237,7 +237,7 @@ export default function CreateClientStatusDialog({
               <Label>Número de teléfono</Label>
               <Input
                 {...register("phoneNumber")}
-                placeholder="Ej: 0424XXXXXXX"
+                placeholder="Ej: 58424XXXXXXX"
               />
               {errors.phoneNumber && (
                 <p className="text-destructive text-sm">

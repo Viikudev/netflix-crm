@@ -36,7 +36,7 @@ export const createClientStatusSchema = z
     expirationDate: z.string().optional().nullable(),
     amount: z.number().int().optional().nullable(),
     priceSource: z.enum(["BINANCE", "CUSTOM"]),
-    customUsdtRate: z.number().positive().optional().nullable(),
+    customUsdtRate: z.number().optional().nullable(),
     supplierPrice: z.number().min(0, "Required"),
   })
   .superRefine((data, ctx) => {
@@ -44,7 +44,7 @@ export const createClientStatusSchema = z
       if (
         data.customUsdtRate === null ||
         data.customUsdtRate === undefined ||
-        data.customUsdtRate <= 0
+        data.customUsdtRate < 0
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -72,7 +72,7 @@ export const renewClientStatusSchema = z
       if (
         data.customUsdtRate === null ||
         data.customUsdtRate === undefined ||
-        data.customUsdtRate <= 0
+        data.customUsdtRate < 0
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

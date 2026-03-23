@@ -41,7 +41,7 @@ export default function ServicesSection() {
         )}
 
         {!isLoading && !isError && data && data.length > 0 && (
-          <div className="grid grid-cols-3 gap-4 max-sm:grid-cols-1">
+          <div className="grid grid-cols-3 gap-4 max-2xl:grid-cols-2 max-lg:grid-cols-1">
             {data.map((service: ServiceProps) => (
               <Item
                 key={service.id}
