@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { ClientStatus } from "@/types/clientStatus";
 import ClientStatusActions from "@/components/ClientStatusActions";
+import EditableTextCell from "@/components/client-status/EditableTextCell";
 import { differenceInDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 
@@ -16,10 +17,24 @@ export const columns: ColumnDef<ClientStatus>[] = [
   {
     accessorKey: "clientName",
     header: "Cliente",
+    cell: ({ row, getValue }) => (
+      <EditableTextCell
+        clientStatusId={row.original.id}
+        field="clientName"
+        value={(getValue() as string) ?? ""}
+      />
+    ),
   },
   {
     accessorKey: "phoneNumber",
     header: "Telefono",
+    cell: ({ row, getValue }) => (
+      <EditableTextCell
+        clientStatusId={row.original.id}
+        field="phoneNumber"
+        value={(getValue() as string) ?? ""}
+      />
+    ),
   },
   {
     id: "activeAccount",
