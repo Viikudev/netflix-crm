@@ -22,26 +22,66 @@ export type CreateActiveAccountValues = z.infer<
   typeof createActiveAccountSchema
 >;
 
-export const createClientStatusSchema = z.object({
-  clientName: z
-    .string()
-    .max(20, "El nombre del cliente debe tener como máximo 20 caracteres")
-    .min(1, "Required"),
-  phoneNumber: z.string().min(1, "Required"),
-  activeAccountId: z.string().min(1, "Required"),
-  serviceId: z.string().min(1, "Required"),
-  screenId: z.string().min(1, "Required"),
-  status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]),
-  expirationDate: z.string().optional().nullable(),
-});
+export const createClientStatusSchema = z
+  .object({
+    clientName: z
+      .string()
+      .max(40, "El nombre del cliente debe tener como máximo 20 caracteres")
+      .min(1, "Required"),
+    phoneNumber: z.string().min(1, "Required"),
+    activeAccountId: z.string().min(1, "Required"),
+    serviceId: z.string().min(1, "Required"),
+    screenId: z.string().min(1, "Required"),
+    status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]),
+    expirationDate: z.string().optional().nullable(),
+    amount: z.number().int().optional().nullable(),
+    priceSource: z.enum(["BINANCE", "CUSTOM"]),
+    customUsdtRate: z.number().positive().optional().nullable(),
+    supplierPrice: z.number().min(0, "Required"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.priceSource === "CUSTOM") {
+      if (
+        data.customUsdtRate === null ||
+        data.customUsdtRate === undefined ||
+        data.customUsdtRate <= 0
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["customUsdtRate"],
+          message: "La tasa USDT manual es requerida",
+        });
+      }
+    }
+  });
 
 export type CreateClientStatusValues = z.infer<typeof createClientStatusSchema>;
 
-export const renewClientStatusSchema = z.object({
-  expirationDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: "Invalid date string",
-  }),
-});
+export const renewClientStatusSchema = z
+  .object({
+    expirationDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+      message: "Invalid date string",
+    }),
+    amount: z.number().int().optional().nullable(),
+    priceSource: z.enum(["BINANCE", "CUSTOM"]),
+    customUsdtRate: z.number().positive().optional().nullable(),
+    supplierPrice: z.number().min(0, "Required"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.priceSource === "CUSTOM") {
+      if (
+        data.customUsdtRate === null ||
+        data.customUsdtRate === undefined ||
+        data.customUsdtRate <= 0
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["customUsdtRate"],
+          message: "La tasa USDT manual es requerida",
+        });
+      }
+    }
+  });
 
 export type RenewClientStatusValues = z.infer<typeof renewClientStatusSchema>;
 

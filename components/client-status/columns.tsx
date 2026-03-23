@@ -71,6 +71,14 @@ export const columns: ColumnDef<ClientStatus>[] = [
     },
   },
   {
+    accessorKey: "amount",
+    header: "Monto",
+    cell: ({ getValue }) => {
+      const amount = getValue() as number | null | undefined;
+      return amount != null ? `${(amount / 100).toFixed(2)} Bs` : "-";
+    },
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => <ClientStatusActions clientStatus={row.original} />,

@@ -20,7 +20,7 @@ export default function ServicesSection() {
   });
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-md">
+    <div className="col-span-2 flex max-h-91 flex-col gap-4 overflow-y-scroll rounded-xl bg-white p-4 shadow-md">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold">Servicios</h2>
         <CreateServiceDialog />

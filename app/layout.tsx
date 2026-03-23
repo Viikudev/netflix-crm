@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "@/app/provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 antialiased`}
       >
         <ReactQueryProvider>
-          <TooltipProvider delayDuration={500}>{children}</TooltipProvider>
+          <TooltipProvider delayDuration={500}>
+            {children}
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: {
+                  background: "#4a4a4a",
+                  color: "white",
+                },
+              }}
+            />
+          </TooltipProvider>
         </ReactQueryProvider>
       </body>
     </html>

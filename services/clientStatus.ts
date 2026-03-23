@@ -6,6 +6,7 @@ export type CreateClientStatusPayload = {
   activeAccountId: string;
   serviceId: string;
   screenId: string;
+  amount?: number | null;
   status: "ACTIVE" | "EXPIRED" | "NEAR_EXPIRATION";
   expirationDate?: string | null;
 };

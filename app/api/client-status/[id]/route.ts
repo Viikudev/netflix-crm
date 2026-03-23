@@ -24,10 +24,28 @@ export async function PATCH(
       dataToUpdate.expirationDate = new Date(dataToUpdate.expirationDate);
     }
 
-    const updatedClientStatus = await prisma.clientStatus.update({
-      where: { id },
-      data: dataToUpdate,
-    });
+    const amount =
+      typeof dataToUpdate.amount === "number" ? dataToUpdate.amount : 0;
+    const isRenewal = dataToUpdate.status === "ACTIVE" && amount > 0;
+
+    const [updatedClientStatus] = await prisma.$transaction([
+      prisma.clientStatus.update({
+        where: { id },
+        data: dataToUpdate,
+      }),
+      prisma.bankEarnings.upsert({
+        where: { id: 1 },
+        update: {
+          total: {
+            increment: isRenewal ? amount : 0,
+          },
+        },
+        create: {
+          id: 1,
+          total: isRenewal ? amount : 0,
+        },
+      }),
+    ]);
 
     return NextResponse.json(updatedClientStatus);
   } catch (error) {

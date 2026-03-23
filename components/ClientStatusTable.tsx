@@ -59,7 +59,7 @@ export default function ClientStatusTable() {
   }
 
   return (
-    <Card className="col-span-2 gap-4 pb-0! max-sm:col-span-1 max-sm:py-4">
+    <Card className="col-span-4 gap-4 pb-0! max-sm:col-span-1 max-sm:py-4">
       <CardHeader className="max-sm:px-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-bold">Clientes </CardTitle>

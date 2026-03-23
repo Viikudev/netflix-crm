@@ -1,14 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
-import { format } from "date-fns";
+import { useState, useMemo } from "react";
+import { format, differenceInDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
+import { useBinancePrice } from "@/context/BinancePriceContext";
 
 import {
   Dialog,
@@ -23,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -74,7 +76,7 @@ export default function CreateClientStatusDialog({
     watch,
     reset,
     formState: { errors },
-  } = useForm({
+  } = useForm<CreateClientStatusValues>({
     resolver: zodResolver(createClientStatusSchema),
     defaultValues: {
       clientName: "",
@@ -84,10 +86,17 @@ export default function CreateClientStatusDialog({
       screenId: "",
       status: "ACTIVE",
       expirationDate: undefined,
+      priceSource: "BINANCE",
+      customUsdtRate: null,
+      supplierPrice: 0,
     },
   });
 
   const selectedAccountId = watch("activeAccountId");
+  const selectedServiceId = watch("serviceId");
+  const selectedPriceSource = watch("priceSource");
+  const customUsdtRate = watch("customUsdtRate");
+  const supplierPrice = watch("supplierPrice");
 
   const { data: services = [] } = useQuery<ServiceProps[]>({
     queryKey: ["services"],
@@ -98,6 +107,8 @@ export default function CreateClientStatusDialog({
     queryKey: ["activeAccounts"],
     queryFn: fetchActiveAccount,
   });
+
+  const { price: binancePrice } = useBinancePrice();
 
   const { data: screens = [] } = useQuery<ScreenProps[]>({
     queryKey: ["screens", selectedAccountId],
@@ -114,6 +125,7 @@ export default function CreateClientStatusDialog({
       setDate(undefined);
       onCreated?.(created);
       queryClient.invalidateQueries({ queryKey: ["clientStatuses"] });
+      queryClient.invalidateQueries({ queryKey: ["bankEarnings"] });
     },
     onError: (err: unknown) => {
       const message =
@@ -125,6 +137,52 @@ export default function CreateClientStatusDialog({
     },
   });
 
+  const calculatedAmount = useMemo(() => {
+    if (!date || !selectedServiceId || !services.length) return null;
+    const selectedService = services.find((s) => s.id === selectedServiceId);
+    if (!selectedService) return null;
+
+    const days = differenceInDays(date, new Date());
+    if (days <= 0)
+      return { cents: 0, usdFormatted: "0.00", bsFormatted: "0.00 Bs" };
+
+    // service.price is in cents
+    const usdPriceCents = (selectedService.price / 30) * days;
+    const usdPriceFormatted = (usdPriceCents / 100).toFixed(2);
+
+    const rate =
+      selectedPriceSource === "CUSTOM"
+        ? typeof customUsdtRate === "number" && customUsdtRate > 0
+          ? customUsdtRate
+          : null
+        : binancePrice;
+
+    const grossBsFloat = rate ? (usdPriceCents / 100) * rate : 0;
+    const supplierBs =
+      typeof supplierPrice === "number" && supplierPrice >= 0
+        ? supplierPrice
+        : 0;
+    const netBsFloat = Math.max(grossBsFloat - supplierBs, 0);
+
+    return {
+      cents: Math.round(netBsFloat * 100),
+      usdFormatted: usdPriceFormatted,
+      grossBsFormatted: rate
+        ? `${grossBsFloat.toFixed(2)} Bs`
+        : "Calculando...",
+      supplierBsFormatted: `${supplierBs.toFixed(2)} Bs`,
+      netBsFormatted: `${netBsFloat.toFixed(2)} Bs`,
+    };
+  }, [
+    date,
+    selectedServiceId,
+    services,
+    binancePrice,
+    selectedPriceSource,
+    customUsdtRate,
+    supplierPrice,
+  ]);
+
   const onSubmit = (data: CreateClientStatusValues) => {
     setError(null);
     let expirationDate = data.expirationDate;
@@ -134,9 +192,15 @@ export default function CreateClientStatusDialog({
     }
 
     mutation.mutate({
-      ...data,
+      clientName: data.clientName,
+      phoneNumber: data.phoneNumber,
+      activeAccountId: data.activeAccountId,
+      serviceId: data.serviceId,
+      screenId: data.screenId,
+      status: data.status,
       expirationDate,
-    } as CreateClientStatusPayload);
+      amount: calculatedAmount?.cents ?? null,
+    });
   };
 
   return (
@@ -156,7 +220,7 @@ export default function CreateClientStatusDialog({
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 gap-3"
+          className="grid grid-cols-2 gap-3"
         >
           <div className="col-span-2">
             <Label>Nombre del cliente</Label>
@@ -297,6 +361,101 @@ export default function CreateClientStatusDialog({
               </PopoverContent>
             </Popover>
           </div>
+
+          <div className="col-span-2 grid grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <Label>Modo de tasa USDT</Label>
+              <Select
+                defaultValue="BINANCE"
+                onValueChange={(val) =>
+                  setValue("priceSource", val as "BINANCE" | "CUSTOM")
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecciona una opción" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="BINANCE">Usar Binance</SelectItem>
+                    <SelectItem value="CUSTOM">Tasa manual</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedPriceSource === "CUSTOM" && (
+              <div className="col-span-1">
+                <Label>Tasa USDT manual</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Ej: 105.25"
+                  {...register("customUsdtRate", { valueAsNumber: true })}
+                />
+                {errors.customUsdtRate && (
+                  <p className="text-destructive text-sm">
+                    {errors.customUsdtRate.message}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="col-span-2">
+            <Label>Precio proveedor (Bs)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="Ej: 250.00"
+              {...register("supplierPrice", { valueAsNumber: true })}
+            />
+            {errors.supplierPrice && (
+              <p className="text-destructive text-sm">
+                {errors.supplierPrice.message}
+              </p>
+            )}
+          </div>
+
+          <Separator className="col-span-2 my-2" />
+
+          {calculatedAmount && (
+            <div className="col-span-2 space-y-1 rounded-md p-0 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-neutral-700">
+                  Servicio calculado:
+                </span>
+                <span className="text-neutral-900">
+                  {calculatedAmount.usdFormatted} USD
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-neutral-700">
+                  Monto bruto (Bs):
+                </span>
+                <span className="text-neutral-900">
+                  {calculatedAmount.grossBsFormatted}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-neutral-700">
+                  Precio proveedor (Bs):
+                </span>
+                <span className="text-neutral-900">
+                  - {calculatedAmount.supplierBsFormatted}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-neutral-700">
+                  Monto neto a guardar:
+                </span>
+                <span className="text-md font-bold text-neutral-900">
+                  {calculatedAmount.netBsFormatted}
+                </span>
+              </div>
+            </div>
+          )}
 
           {error && <div className="text-destructive text-sm">{error}</div>}
 

@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       serviceId,
       screenId,
       status,
+      amount,
     } = body ?? {};
 
     if (!clientName || typeof clientName !== "string") {
@@ -101,18 +102,35 @@ export async function POST(req: Request) {
         ? new Date(body.expirationDate)
         : null;
 
-    const created = await prisma.clientStatus.create({
-      data: {
-        clientName,
-        phoneNumber,
-        activeAccountId,
-        serviceId,
-        screenId,
-        expirationDate:
-          providedExpiration ?? accountExists.expirationDate ?? null,
-        status: status as ClientStatusEnum,
-      },
-    });
+    const actualAmount = typeof amount === "number" ? amount : null;
+
+    const [created] = await prisma.$transaction([
+      prisma.clientStatus.create({
+        data: {
+          clientName,
+          phoneNumber,
+          activeAccountId,
+          serviceId,
+          screenId,
+          expirationDate:
+            providedExpiration ?? accountExists.expirationDate ?? null,
+          amount: actualAmount,
+          status: status as ClientStatusEnum,
+        },
+      }),
+      prisma.bankEarnings.upsert({
+        where: { id: 1 },
+        update: {
+          total: {
+            increment: actualAmount ?? 0,
+          },
+        },
+        create: {
+          id: 1,
+          total: actualAmount ?? 0,
+        },
+      }),
+    ]);
 
     return NextResponse.json(created, { status: 201 });
   } catch (err: unknown) {
@@ -148,7 +166,7 @@ export async function GET() {
         activeAccount: {
           select: { id: true, email: true, expirationDate: true },
         },
-        service: { select: { id: true, serviceName: true } },
+        service: { select: { id: true, serviceName: true, price: true } },
         screen: { select: { id: true, profileName: true, profilePIN: true } },
       },
     });

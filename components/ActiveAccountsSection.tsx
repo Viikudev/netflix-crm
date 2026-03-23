@@ -42,6 +42,7 @@ Perfil: ${screen.profileName}
 PIN: ${screen.profilePIN}`;
     navigator.clipboard.writeText(textToCopy);
     toast.success("Datos copiados al portapapeles");
+    // toast.success("Datos copiados al portapapeles");
   };
 
   return (
@@ -88,9 +89,9 @@ PIN: ${screen.profilePIN}`;
             >
               {activeAccount.screens.map((screen) => (
                 <Tooltip key={screen.id}>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <div
-                      className="group flex cursor-pointer items-center justify-between gap-2 rounded-full border py-1 pr-1 pl-4 font-medium text-neutral-600 transition-colors"
+                      className="group flex cursor-pointer items-center justify-between gap-2 rounded-full border pl-4 font-medium text-neutral-600 transition-colors"
                       onClick={() =>
                         setSelectedScreen({
                           ...screen,
@@ -99,37 +100,27 @@ PIN: ${screen.profilePIN}`;
                       }
                     >
                       <div className="flex flex-col pr-2">
-                        <p className="flex h-4 items-center gap-2 text-left text-sm">
+                        <div className="flex h-4 items-center gap-2 text-left text-sm">
                           <span>{screen.profileName}</span>
                           <Separator orientation="vertical" />
                           <span className="text-left text-xs text-neutral-400">
                             PIN: {screen.profilePIN}
                           </span>
-                        </p>
-                        {/* <p className="text-left text-xs text-neutral-400">
-                          PIN: {screen.profilePIN}
-                        </p> */}
+                        </div>
                       </div>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 shrink-0 rounded-full transition-opacity group-hover:opacity-100 hover:bg-transparent!"
-                            onClick={(e) =>
-                              handleCopyProfile(e, {
-                                ...screen,
-                                activeAccountId: activeAccount.id,
-                              })
-                            }
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Copiar al portapapeles</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 rounded-full transition-opacity group-hover:opacity-100 hover:bg-neutral-100!"
+                        onClick={(e) => {
+                          handleCopyProfile(e, {
+                            ...screen,
+                            activeAccountId: activeAccount.id,
+                          });
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -168,7 +159,7 @@ export default function ActiveAccountsSection() {
   });
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-md">
+    <div className="col-span-2 flex max-h-91 flex-col gap-4 overflow-y-scroll rounded-xl bg-white p-4 shadow-md">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold">Correos Activos</h2>
         <CreateAccountDialog />

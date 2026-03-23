@@ -1,0 +1,119 @@
+"use client";
+
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchBankEarnings } from "@/services/bankEarnings";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, ArrowDownToLine, RefreshCw } from "lucide-react";
+import ConvertCurrencyDialog from "./ConvertCurrencyDialog";
+import WithdrawFundsDialog from "./WithdrawFundsDialog";
+
+export default function BankEarningsCard() {
+  const [openConvertDialog, setOpenConvertDialog] = useState(false);
+  const [openWithdrawBsDialog, setOpenWithdrawBsDialog] = useState(false);
+  const [openWithdrawUsdtDialog, setOpenWithdrawUsdtDialog] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["bankEarnings"],
+    queryFn: fetchBankEarnings,
+  });
+
+  const totalBs = data ? data.total / 100 : 0;
+  const totalUsdt = data?.totalUsdt ? data.totalUsdt / 100 : 0;
+
+  return (
+    <>
+      <ConvertCurrencyDialog
+        open={openConvertDialog}
+        onOpenChange={setOpenConvertDialog}
+      />
+      <WithdrawFundsDialog
+        open={openWithdrawBsDialog}
+        onOpenChange={setOpenWithdrawBsDialog}
+        currency="BS"
+      />
+      <WithdrawFundsDialog
+        open={openWithdrawUsdtDialog}
+        onOpenChange={setOpenWithdrawUsdtDialog}
+        currency="USDT"
+      />
+
+      <div className="col-span-2 flex items-start justify-between gap-1 rounded-xl bg-neutral-700 p-4 text-white shadow-md">
+        <div className="flex w-1/2 flex-col gap-4">
+          <h2 className="text-sm font-normal">
+            Dinero acumulado en banco (Bs)
+          </h2>
+          {isLoading ? (
+            <p className="text-sm font-bold">Cargando...</p>
+          ) : (
+            <div className="flex items-end justify-between">
+              <p className="text-xl font-bold">{totalBs.toFixed(2)} Bs</p>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-8 border-none bg-white/20 px-2 text-xs text-white hover:bg-yellow-300/90"
+                  >
+                    Acciones <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setOpenConvertDialog(true)}>
+                    <RefreshCw className="h-4 w-4" />
+                    <span>Convertir a USDT</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setOpenWithdrawBsDialog(true)}
+                  >
+                    <ArrowDownToLine className="h-4 w-4" />
+                    <span>Retirar fondos</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        </div>
+        <Separator orientation="vertical" className="mx-4" />
+        <div className="flex h-full w-1/2 flex-col justify-between gap-4">
+          <h2 className="text-sm font-normal">
+            Dinero acumulado en Binance (USDT)
+          </h2>
+          {isLoading ? (
+            <p className="text-md font-bold">Cargando...</p>
+          ) : (
+            <div className="flex items-end justify-between">
+              <p className="text-xl font-bold text-white">
+                {totalUsdt.toFixed(2)} USDT
+              </p>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-8 border-none bg-white/20 px-2 text-xs text-white hover:bg-yellow-300/90"
+                  >
+                    Acciones <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setOpenWithdrawUsdtDialog(true)}
+                  >
+                    <ArrowDownToLine className="h-4 w-4" />
+                    <span>Retirar fondos</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}

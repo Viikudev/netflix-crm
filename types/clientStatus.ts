@@ -9,6 +9,7 @@ export type ClientStatus = {
   screenId: string;
   screen?: { id: string; profileName: string; profilePIN: number } | null;
   expirationDate?: string | null;
+  amount?: number | null;
   status: string;
   createdAt?: string;
   updatedAt?: string;
