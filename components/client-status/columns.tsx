@@ -50,7 +50,7 @@ export const columns: ColumnDef<ClientStatus>[] = [
 
       const val = getValue() as string | null | undefined;
       if (!val) return "-";
-      const days = differenceInDays(new Date(val), new Date());
+      const days = differenceInDays(new Date(val), new Date()) + 1;
       return days >= 0 ? `${days} días` : "Expirado";
     },
   },

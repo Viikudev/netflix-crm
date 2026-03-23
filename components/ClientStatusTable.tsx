@@ -36,7 +36,7 @@ export default function ClientStatusTable() {
             new Date(client.expirationDate),
             new Date(),
           );
-          if (days <= 0) {
+          if (days < 0) {
             try {
               await updateClientStatus(client.id, { status: "EXPIRED" });
               hasUpdates = true;
