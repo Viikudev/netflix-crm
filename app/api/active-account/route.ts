@@ -89,6 +89,8 @@ export async function GET() {
           select: {
             id: true,
             serviceName: true,
+            textColor: true,
+            backgroundColor: true,
           },
         },
         expirationDate: true,

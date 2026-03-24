@@ -30,7 +30,7 @@ export default async function ResetPasswordPage() {
 
   return (
     <BinancePriceProvider price={price}>
-      <div className="mx-10 grid grid-cols-4 gap-4 pb-10 max-sm:mx-4 max-sm:grid-cols-1">
+      <div className="mx-10 grid grid-cols-4 gap-4 pb-10 max-sm:mx-4 max-sm:grid-cols-1 max-sm:gap-x-0 max-sm:gap-y-4">
         <div className="col-span-4 flex gap-4 max-sm:col-span-1 max-sm:flex-col sm:items-start">
           <BinancePriceCard price={price} />
         </div>

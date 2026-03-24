@@ -23,6 +23,31 @@ import {
 } from "@/components/ui/tooltip";
 import UpdateScreenDialog from "./UpdateScreenDialog";
 import type { ScreenProps } from "@/types/screen";
+import ColorContrastChecker from "color-contrast-checker";
+
+const contrastChecker = new ColorContrastChecker();
+
+function resolveServiceTextColor(activeAccount: ActiveAccountProps): string {
+  const service = activeAccount.service;
+
+  if (!service?.textColor) {
+    return "inherit";
+  }
+
+  try {
+    const textLum = contrastChecker.hexToLuminance(service.textColor);
+    const whiteLum = contrastChecker.hexToLuminance("#ffffff");
+    const contrastRatio = contrastChecker.getContrastRatio(textLum, whiteLum);
+
+    if (contrastRatio >= 4.5) {
+      return service.textColor;
+    }
+
+    return service.backgroundColor ?? service.textColor;
+  } catch {
+    return service.textColor;
+  }
+}
 
 function ActiveAccountCard({
   activeAccount,
@@ -33,16 +58,16 @@ function ActiveAccountCard({
   const [selectedScreen, setSelectedScreen] = useState<ScreenProps | null>(
     null,
   );
+  const serviceTextColor = resolveServiceTextColor(activeAccount);
 
   const handleCopyProfile = (e: React.MouseEvent, screen: ScreenProps) => {
     e.stopPropagation();
     const textToCopy = `Correo electronico: ${activeAccount.email}
-Contraseña: ${activeAccount.password}
-Perfil: ${screen.profileName}
-PIN: ${screen.profilePIN}`;
+                        Contraseña: ${activeAccount.password}
+                        Perfil: ${screen.profileName}
+                        PIN: ${screen.profilePIN}`;
     navigator.clipboard.writeText(textToCopy);
     toast.success("Datos copiados al portapapeles");
-    // toast.success("Datos copiados al portapapeles");
   };
 
   return (
@@ -51,7 +76,10 @@ PIN: ${screen.profilePIN}`;
         <div className="flex w-full flex-col justify-between sm:flex-row">
           <div>
             {activeAccount.service?.serviceName ? (
-              <p className="pb-2 text-lg font-semibold">
+              <p
+                className="pb-2 text-lg font-semibold"
+                style={{ color: serviceTextColor }}
+              >
                 {activeAccount.service.serviceName}
               </p>
             ) : (
