@@ -29,6 +29,14 @@ export async function PATCH(
       dataToUpdate.price = Math.round(dataToUpdate.price * 100);
     }
 
+    if (dataToUpdate.textColor !== undefined) {
+      dataToUpdate.textColor = dataToUpdate.textColor.toLowerCase();
+    }
+
+    if (dataToUpdate.backgroundColor !== undefined) {
+      dataToUpdate.backgroundColor = dataToUpdate.backgroundColor.toLowerCase();
+    }
+
     const service = await prisma.service.update({
       where: { id },
       data: dataToUpdate,

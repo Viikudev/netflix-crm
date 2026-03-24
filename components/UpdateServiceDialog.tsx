@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateService } from "@/services/services";
 import { createServiceSchema, CreateServiceValues } from "@/lib/schemas";
 import type { ServiceProps } from "@/types/service";
+import { HexColorPicker } from "react-colorful";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
 
 interface UpdateServiceDialogProps {
@@ -41,6 +43,8 @@ export default function UpdateServiceDialog({
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     // reset,
     formState: { errors },
   } = useForm<z.infer<typeof createServiceSchema>>({
@@ -50,7 +54,19 @@ export default function UpdateServiceDialog({
       price: service.price / 100, // Convert cents to dollars
       description: service.description ?? "",
       currency: service.currency,
+      textColor: service.textColor ?? "#111827",
+      backgroundColor: service.backgroundColor ?? "#f3f4f6",
     },
+  });
+
+  const textColor = useWatch({
+    control,
+    name: "textColor",
+  });
+
+  const backgroundColor = useWatch({
+    control,
+    name: "backgroundColor",
   });
 
   const mutation = useMutation({
@@ -60,6 +76,8 @@ export default function UpdateServiceDialog({
         description: data.description ?? "",
         price: data.price,
         currency: data.currency ?? "USD",
+        textColor: data.textColor.toLowerCase(),
+        backgroundColor: data.backgroundColor.toLowerCase(),
         imageUrl: data.imageUrl,
       };
       return await updateService(service.id, payload);
@@ -95,6 +113,9 @@ export default function UpdateServiceDialog({
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <input type="hidden" {...register("textColor")} />
+          <input type="hidden" {...register("backgroundColor")} />
+
           <div>
             <Label>Nombre del servicio</Label>
             <Input {...register("serviceName")} />
@@ -115,6 +136,65 @@ export default function UpdateServiceDialog({
             {errors.price && (
               <p className="text-destructive">{String(errors.price.message)}</p>
             )}
+          </div>
+
+          <div>
+            <Label>Descripción</Label>
+            <Textarea {...register("description")} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Color de texto</Label>
+              <HexColorPicker
+                color={textColor ?? "#111827"}
+                onChange={(color) =>
+                  setValue("textColor", color, { shouldValidate: true })
+                }
+                className="mt-2! w-full!"
+              />
+              <Input
+                className="mt-2"
+                value={textColor ?? "#111827"}
+                onChange={(e) =>
+                  setValue("textColor", e.target.value, {
+                    shouldValidate: true,
+                  })
+                }
+                placeholder="#111827"
+              />
+              {errors.textColor && (
+                <p className="text-destructive mt-1 text-sm">
+                  {String(errors.textColor.message)}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label>Color de fondo</Label>
+              <HexColorPicker
+                color={backgroundColor ?? "#f3f4f6"}
+                onChange={(color) =>
+                  setValue("backgroundColor", color, { shouldValidate: true })
+                }
+                className="mt-2! w-full!"
+              />
+              <Input
+                className="mt-2"
+                value={backgroundColor ?? "#f3f4f6"}
+                onChange={(e) =>
+                  setValue("backgroundColor", e.target.value, {
+                    shouldValidate: true,
+                  })
+                }
+                placeholder="#f3f4f6"
+              />
+              {errors.backgroundColor && (
+                <p className="text-destructive mt-1 text-sm">
+                  {String(errors.backgroundColor.message)}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-2">

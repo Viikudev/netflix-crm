@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password, expirationDate } = body ?? {};
+    const { email, password, expirationDate, serviceId } = body ?? {};
 
     if (!email || typeof email !== "string") {
       return NextResponse.json(
@@ -27,6 +27,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (!serviceId || typeof serviceId !== "string") {
+      return NextResponse.json(
+        { message: "serviceId is required" },
+        { status: 400 },
+      );
+    }
+
     const exp = new Date(expirationDate);
     if (isNaN(exp.getTime())) {
       return NextResponse.json(
@@ -35,10 +42,23 @@ export async function POST(req: Request) {
       );
     }
 
+    const serviceExists = await prisma.service.findUnique({
+      where: { id: serviceId },
+      select: { id: true },
+    });
+
+    if (!serviceExists) {
+      return NextResponse.json(
+        { message: "service not found" },
+        { status: 404 },
+      );
+    }
+
     const created = await prisma.activeAccount.create({
       data: {
         email,
         password,
+        serviceId,
         expirationDate: exp,
       },
     });
@@ -47,6 +67,7 @@ export async function POST(req: Request) {
       {
         id: created.id,
         email: created.email,
+        serviceId: created.serviceId,
         expirationDate: created.expirationDate,
       },
       { status: 201 },
@@ -63,6 +84,13 @@ export async function GET() {
         id: true,
         email: true,
         password: true,
+        serviceId: true,
+        service: {
+          select: {
+            id: true,
+            serviceName: true,
+          },
+        },
         expirationDate: true,
         screens: {
           select: { id: true, profileName: true, profilePIN: true },

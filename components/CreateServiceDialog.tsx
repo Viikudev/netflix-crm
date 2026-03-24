@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createService } from "@/services/services";
 import { createServiceSchema, CreateServiceValues } from "@/lib/schemas";
+import { HexColorPicker } from "react-colorful";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,8 @@ export default function CreateServiceDialog() {
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof createServiceSchema>>({
@@ -38,7 +41,19 @@ export default function CreateServiceDialog() {
       imageUrl: "",
       description: "",
       currency: "USD",
+      textColor: "#111827",
+      backgroundColor: "#f3f4f6",
     },
+  });
+
+  const textColor = useWatch({
+    control,
+    name: "textColor",
+  });
+
+  const backgroundColor = useWatch({
+    control,
+    name: "backgroundColor",
   });
 
   const mutation = useMutation({
@@ -48,6 +63,8 @@ export default function CreateServiceDialog() {
         description: data.description ?? "",
         price: data.price,
         currency: data.currency ?? "USD",
+        textColor: data.textColor.toLowerCase(),
+        backgroundColor: data.backgroundColor.toLowerCase(),
       };
       return await createService(payload);
     },
@@ -79,6 +96,9 @@ export default function CreateServiceDialog() {
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <input type="hidden" {...register("textColor")} />
+          <input type="hidden" {...register("backgroundColor")} />
+
           <div>
             <Label>Nombre del servicio</Label>
             <Input {...register("serviceName")} placeholder="Ej: Netflix" />
@@ -118,6 +138,60 @@ export default function CreateServiceDialog() {
               {...register("description")}
               placeholder="Ej: Servicio principal peliculas y series enfocadas en la juventud"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Color de texto</Label>
+              <HexColorPicker
+                color={textColor ?? "#111827"}
+                onChange={(color) =>
+                  setValue("textColor", color, { shouldValidate: true })
+                }
+                className="mt-2! w-full!"
+              />
+              <Input
+                className="mt-2"
+                value={textColor ?? "#111827"}
+                onChange={(e) =>
+                  setValue("textColor", e.target.value, {
+                    shouldValidate: true,
+                  })
+                }
+                placeholder="#111827"
+              />
+              {errors.textColor && (
+                <p className="text-destructive mt-1 text-sm">
+                  {String(errors.textColor.message)}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label>Color de fondo</Label>
+              <HexColorPicker
+                color={backgroundColor ?? "#f3f4f6"}
+                onChange={(color) =>
+                  setValue("backgroundColor", color, { shouldValidate: true })
+                }
+                className="mt-2! w-full!"
+              />
+              <Input
+                className="mt-2"
+                value={backgroundColor ?? "#f3f4f6"}
+                onChange={(e) =>
+                  setValue("backgroundColor", e.target.value, {
+                    shouldValidate: true,
+                  })
+                }
+                placeholder="#f3f4f6"
+              />
+              {errors.backgroundColor && (
+                <p className="text-destructive mt-1 text-sm">
+                  {String(errors.backgroundColor.message)}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-2">

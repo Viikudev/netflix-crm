@@ -77,9 +77,12 @@ export default function ServiceActions({ service }: ServiceActionsProps) {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-transparent">
             <span className="sr-only">Abrir menú</span>
-            <MoreHorizontal className="h-4 w-4" />
+            <MoreHorizontal
+              className="h-4 w-4"
+              style={{ color: service.textColor }}
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

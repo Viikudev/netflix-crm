@@ -4,6 +4,7 @@ import { ActiveAccountProps } from "@/types/activeAccount";
 export async function createActiveAccount(data: {
   email: string;
   password: string;
+  serviceId: string;
   expirationDate: string;
 }) {
   const response = await axiosInstance.post("/active-account", data);
@@ -20,6 +21,7 @@ export async function updateActiveAccount(
   data: {
     email?: string;
     password?: string;
+    serviceId?: string;
     expirationDate?: string;
   },
 ) {

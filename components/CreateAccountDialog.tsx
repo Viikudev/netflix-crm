@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createActiveAccount } from "@/services/activeAccount";
+import { fetchServices } from "@/services/services";
+import type { ServiceProps } from "@/types/service";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -11,6 +13,15 @@ import type { AxiosError } from "axios";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +42,7 @@ import { Label } from "@/components/ui/label";
 type FormValues = {
   email: string;
   password: string;
+  serviceId: string;
 };
 
 export default function CreateAccountDialog() {
@@ -42,10 +54,19 @@ export default function CreateAccountDialog() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "", serviceId: "" },
+  });
+
+  const selectedServiceId = watch("serviceId");
+
+  const servicesQuery = useQuery<ServiceProps[]>({
+    queryKey: ["services"],
+    queryFn: fetchServices,
   });
 
   const mutation = useMutation({
@@ -57,6 +78,7 @@ export default function CreateAccountDialog() {
       return await createActiveAccount({
         email: data.email,
         password: data.password,
+        serviceId: data.serviceId,
         expirationDate,
       });
     },
@@ -99,6 +121,13 @@ export default function CreateAccountDialog() {
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <input
+            type="hidden"
+            {...register("serviceId", {
+              required: "El servicio es obligatorio",
+            })}
+          />
+
           <div>
             <Label>Correo Electrónico</Label>
             <Input
@@ -125,6 +154,33 @@ export default function CreateAccountDialog() {
             {errors.password && (
               <p className="text-destructive">
                 {String(errors.password.message)}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label>Servicio</Label>
+            <Select
+              value={selectedServiceId}
+              onValueChange={(val) => setValue("serviceId", val)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccione un servicio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Servicios</SelectLabel>
+                  {servicesQuery.data?.map((service: ServiceProps) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.serviceName}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {errors.serviceId && (
+              <p className="text-destructive">
+                {String(errors.serviceId.message)}
               </p>
             )}
           </div>

@@ -17,6 +17,20 @@ export async function PATCH(
       return NextResponse.json({ message: "Invalid data" }, { status: 400 });
     }
 
+    if (parsed.data.serviceId) {
+      const serviceExists = await prisma.service.findUnique({
+        where: { id: parsed.data.serviceId },
+        select: { id: true },
+      });
+
+      if (!serviceExists) {
+        return NextResponse.json(
+          { message: "service not found" },
+          { status: 404 },
+        );
+      }
+    }
+
     const dataToUpdate = {
       ...parsed.data,
       ...(parsed.data.expirationDate && {

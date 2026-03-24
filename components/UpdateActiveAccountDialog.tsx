@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateActiveAccount } from "@/services/activeAccount";
+import { fetchServices } from "@/services/services";
 import {
   createActiveAccountSchema,
   CreateActiveAccountValues,
 } from "@/lib/schemas";
 import type { ActiveAccountProps } from "@/types/activeAccount";
+import type { ServiceProps } from "@/types/service";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +24,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { z } from "zod";
 
 interface UpdateActiveAccountDialogProps {
@@ -44,16 +55,26 @@ export default function UpdateActiveAccountDialog({
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<z.infer<typeof createActiveAccountSchema>>({
     resolver: zodResolver(createActiveAccountSchema),
     defaultValues: {
       email: activeAccount.email,
       password: activeAccount.password,
+      serviceId: activeAccount.serviceId ?? "",
       expirationDate: new Date(activeAccount.expirationDate)
         .toISOString()
         .split("T")[0],
     },
+  });
+
+  const selectedServiceId = watch("serviceId");
+
+  const servicesQuery = useQuery<ServiceProps[]>({
+    queryKey: ["services"],
+    queryFn: fetchServices,
   });
 
   const mutation = useMutation({
@@ -91,6 +112,8 @@ export default function UpdateActiveAccountDialog({
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <input type="hidden" {...register("serviceId")} />
+
           <div>
             <Label>Email</Label>
             <Input {...register("email")} />
@@ -105,6 +128,33 @@ export default function UpdateActiveAccountDialog({
             {errors.password && (
               <p className="text-destructive">
                 {String(errors.password.message)}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label>Servicio</Label>
+            <Select
+              value={selectedServiceId}
+              onValueChange={(val) => setValue("serviceId", val)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccione un servicio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Servicios</SelectLabel>
+                  {servicesQuery.data?.map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.serviceName}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {errors.serviceId && (
+              <p className="text-destructive">
+                {String(errors.serviceId.message)}
               </p>
             )}
           </div>

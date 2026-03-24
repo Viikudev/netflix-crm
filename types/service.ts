@@ -4,4 +4,6 @@ export type ServiceProps = {
   description: string;
   price: number;
   currency: string;
+  textColor: string;
+  backgroundColor: string;
 };

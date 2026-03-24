@@ -42,24 +42,40 @@ export default function ServicesSection() {
 
         {!isLoading && !isError && data && data.length > 0 && (
           <div className="grid grid-cols-3 gap-4 max-2xl:grid-cols-2 max-lg:grid-cols-1">
-            {data.map((service: ServiceProps) => (
-              <Item
-                key={service.id}
-                variant="outline"
-                className="col-span-1 items-center"
-              >
-                <ItemContent>
-                  <ItemTitle>{service.serviceName}</ItemTitle>
-                  <ItemDescription>
-                    Precio: {(service.price / 100).toFixed(2)}{" "}
-                    {service.currency}
-                  </ItemDescription>
-                </ItemContent>
-                <ItemActions>
-                  <ServiceActions service={service} />
-                </ItemActions>
-              </Item>
-            ))}
+            {data.map((service: ServiceProps) => {
+              const textColor = service.textColor ?? "#111827";
+              const backgroundColor = service.backgroundColor ?? "#f3f4f6";
+
+              return (
+                <Item
+                  key={service.id}
+                  variant="outline"
+                  className="col-span-1 items-center shadow-md"
+                  style={{ backgroundColor }}
+                >
+                  <ItemContent>
+                    <ItemTitle
+                      style={{
+                        color: textColor,
+                      }}
+                      className="text-lg font-bold"
+                    >
+                      {service.serviceName}
+                    </ItemTitle>
+                    <ItemDescription
+                      style={{ color: textColor }}
+                      className="text-md font-medium"
+                    >
+                      Precio: {(service.price / 100).toFixed(2)}{" "}
+                      {service.currency}
+                    </ItemDescription>
+                  </ItemContent>
+                  <ItemActions>
+                    <ServiceActions service={service} />
+                  </ItemActions>
+                </Item>
+              );
+            })}
           </div>
         )}
       </div>

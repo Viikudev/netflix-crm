@@ -1,11 +1,15 @@
 import * as z from "zod";
 
+const hexColorRegex = /^#[0-9a-fA-F]{6}$/;
+
 export const createServiceSchema = z.object({
   serviceName: z.string().min(1, "Required"),
   price: z.number().nonnegative(),
   imageUrl: z.string().optional(),
   description: z.string().optional(),
   currency: z.string().optional(),
+  textColor: z.string().regex(hexColorRegex, "Invalid HEX color"),
+  backgroundColor: z.string().regex(hexColorRegex, "Invalid HEX color"),
 });
 
 export type CreateServiceValues = z.infer<typeof createServiceSchema>;
@@ -13,6 +17,7 @@ export type CreateServiceValues = z.infer<typeof createServiceSchema>;
 export const createActiveAccountSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
+  serviceId: z.string().min(1, "Service is required"),
   expirationDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date string",
   }),

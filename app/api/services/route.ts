@@ -19,7 +19,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { serviceName, price, imageUrl, description, currency } = parsed.data;
+    const {
+      serviceName,
+      price,
+      imageUrl,
+      description,
+      currency,
+      textColor,
+      backgroundColor,
+    } = parsed.data;
     const priceCents = Math.round(price * 100);
 
     const service = await prisma.service.create({
@@ -29,6 +37,8 @@ export async function POST(req: Request) {
         imageUrl: imageUrl ?? null,
         description: description ?? null,
         currency: currency ?? "USD",
+        textColor: textColor.toLowerCase(),
+        backgroundColor: backgroundColor.toLowerCase(),
         createdById: session.user.id,
       },
     });

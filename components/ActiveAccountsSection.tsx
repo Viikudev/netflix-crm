@@ -50,6 +50,13 @@ PIN: ${screen.profilePIN}`;
       <ItemContent>
         <div className="flex w-full flex-col justify-between sm:flex-row">
           <div>
+            {activeAccount.service?.serviceName ? (
+              <p className="pb-2 text-lg font-semibold">
+                {activeAccount.service.serviceName}
+              </p>
+            ) : (
+              <p>Sin servicio</p>
+            )}
             <ItemDescription className="text-black">
               <span className="font-semibold">Correo:</span>{" "}
               {activeAccount.email}

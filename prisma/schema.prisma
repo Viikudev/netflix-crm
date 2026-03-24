@@ -83,6 +83,8 @@ model Service {
   description String?
   price       Int
   currency    String   @default("USD")
+  textColor   String   @default("#111827")
+  backgroundColor String @default("#f3f4f6")
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -91,6 +93,7 @@ model Service {
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   clientStatuses ClientStatus[]
+  activeAccounts ActiveAccount[]
 
   @@index([createdById])
   @@map("services")
@@ -100,6 +103,8 @@ model ActiveAccount {
   id             String   @id @default(uuid())
   email          String
   password       String
+  serviceId      String?  @map("service_id")
+  service        Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   expirationDate DateTime
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -108,6 +113,7 @@ model ActiveAccount {
   screens        Screen[]
 
   @@unique([email])
+  @@index([serviceId])
   @@map("active_account")
 }
 

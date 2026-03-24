@@ -11,6 +11,8 @@ export async function createService(data: {
   description: string;
   price: number;
   currency: string;
+  textColor: string;
+  backgroundColor: string;
 }) {
   const response = await axiosInstance.post("/services", data);
   return response.data;
@@ -23,6 +25,8 @@ export async function updateService(
     description?: string;
     price?: number;
     currency?: string;
+    textColor?: string;
+    backgroundColor?: string;
     imageUrl?: string;
   },
 ) {
