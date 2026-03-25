@@ -141,7 +141,7 @@ export default function EditableTextCell({
           aria-label="Confirmar cambios"
           className="absolute top-1/2 right-8 bottom-1/2 -translate-y-1/2 transform hover:bg-transparent hover:text-green-500"
         >
-          <Check className="h-4 w-4" />
+          <Check />
         </Button>
 
         <Button

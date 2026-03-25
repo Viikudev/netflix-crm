@@ -52,7 +52,7 @@ export default async function ResetPasswordPage() {
             </div>
             {/* <TotalRevenueCard /> */}
             <BankEarningsCard />
-            <div className="col-span-2"></div>
+            <div className="col-span-2 max-sm:hidden"></div>
             <ServicesSection />
             <ActiveAccountsSection />
             <ClientStatusTable />

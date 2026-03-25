@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
 export const columns: ColumnDef<ClientStatus>[] = [
   {
     accessorKey: "clientName",
-    header: "Cliente",
+    header: () => <div className="w-60">Cliente</div>,
     cell: ({ row, getValue }) => (
       <EditableTextCell
         clientStatusId={row.original.id}
@@ -27,7 +27,7 @@ export const columns: ColumnDef<ClientStatus>[] = [
   },
   {
     accessorKey: "phoneNumber",
-    header: "Telefono",
+    header: () => <div className="w-50">Telefono</div>,
     cell: ({ row, getValue }) => (
       <EditableTextCell
         clientStatusId={row.original.id}
@@ -38,27 +38,27 @@ export const columns: ColumnDef<ClientStatus>[] = [
   },
   {
     id: "activeAccount",
-    header: "Cuenta activa",
+    header: () => <div className="w-40">Cuenta activa</div>,
     accessorFn: (row) => row.activeAccount?.email ?? row.activeAccountId,
   },
   {
     id: "service",
-    header: "Servicio",
+    header: () => <div className="w-40">Servicio</div>,
     accessorFn: (row) => row.service?.serviceName ?? row.serviceId,
   },
   {
     id: "profileName",
-    header: "Perfil",
+    header: () => <div className="w-40">Perfil</div>,
     accessorFn: (row) => row.screen?.profileName ?? "-",
   },
   {
     id: "profilePIN",
-    header: "PIN",
+    header: () => <div className="w-40">PIN</div>,
     accessorFn: (row) => row.screen?.profilePIN ?? "-",
   },
   {
     accessorKey: "expirationDate",
-    header: "Días restantes",
+    header: () => <div className="w-40">Días restantes</div>,
     cell: ({ row, getValue }) => {
       const status = row.getValue("status") as string;
       if (status === "EXPIRED") return "Expirado";
