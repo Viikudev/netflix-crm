@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
 
 type ClientStatusMessageDialogProps = {
   open: boolean;
@@ -59,10 +60,10 @@ export default function ClientStatusMessageDialog({
       return;
     }
 
-    if (!cleanMessage) {
-      setError("El mensaje es requerido");
-      return;
-    }
+    // if (!cleanMessage) {
+    //   setError("El mensaje es requerido");
+    //   return;
+    // }
 
     const chatUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(cleanMessage)}`;
     window.open(chatUrl, "_blank", "noopener,noreferrer");
@@ -104,8 +105,13 @@ export default function ClientStatusMessageDialog({
             >
               Cancelar
             </Button>
-            <Button type="button" onClick={handleSendMessage}>
-              Enviar Mensaje
+            <Button
+              type="button"
+              onClick={handleSendMessage}
+              className="bg-green-500 hover:bg-green-500"
+            >
+              <p>Enviar Mensaje</p>
+              <Send size={16} />
             </Button>
           </div>
         </div>

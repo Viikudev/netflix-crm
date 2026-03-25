@@ -1,15 +1,26 @@
 import { ReactQueryProvider } from "@/app/provider";
 import Header from "@/components/Header";
+import { BinancePriceProvider } from "@/context/BinancePriceContext";
+import { fetchP2PPrice } from "@/lib/binance";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let price = null;
+  try {
+    price = await fetchP2PPrice();
+  } catch (err) {
+    console.error("Error fetching P2P price:", err);
+  }
+
   return (
-    <div>
-      <Header />
-      <ReactQueryProvider>{children}</ReactQueryProvider>
+    <div className="flex flex-col gap-10">
+      <BinancePriceProvider price={price}>
+        <Header price={price} />
+        <ReactQueryProvider>{children}</ReactQueryProvider>
+      </BinancePriceProvider>
     </div>
   );
 }

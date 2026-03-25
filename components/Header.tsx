@@ -8,11 +8,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import BinancePriceCard from "@/components/BinancePriceCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
-export default function Header() {
+export default function Header({ price }: { price: number | null }) {
   const router = useRouter();
   const { data: session } = authClient.useSession();
 
@@ -35,8 +36,11 @@ export default function Header() {
     }
   };
   return (
-    <header className="mx-10 flex items-center justify-between py-4 max-sm:mx-4">
-      <h1 className="text-2xl font-bold">Streamings PZO</h1>
+    <header className="sticky top-5 z-1 mx-10 my-5 flex items-center justify-between rounded-md bg-white/90 px-4 py-2 shadow-sm backdrop-blur-xs max-sm:mx-4">
+      <div className="flex gap-4">
+        <h1 className="text-2xl font-bold">Streamings PZO</h1>
+        <BinancePriceCard price={price} />
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex cursor-pointer items-center gap-3 rounded-xl p-2 text-left transition hover:bg-neutral-200/50">
           <Avatar className="h-12 w-12">

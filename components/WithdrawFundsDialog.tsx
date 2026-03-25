@@ -43,6 +43,7 @@ export default function WithdrawFundsDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bankEarnings"] });
+      queryClient.invalidateQueries({ queryKey: ["bankWithdrawals"] });
       onOpenChange(false);
       setAmount("");
       setReason("");

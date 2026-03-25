@@ -24,7 +24,20 @@ export type WithdrawFundsPayload = {
   reason: string;
 };
 
+export type BankWithdrawal = {
+  id: string;
+  currency: WithdrawCurrency;
+  amount: number;
+  reason: string;
+  createdAt: string;
+};
+
 export async function withdrawFunds(data: WithdrawFundsPayload) {
   const response = await axiosInstance.post("/bank-earnings/withdraw", data);
+  return response.data;
+}
+
+export async function fetchWithdrawals(): Promise<BankWithdrawal[]> {
+  const response = await axiosInstance.get("/bank-earnings/withdrawals");
   return response.data;
 }

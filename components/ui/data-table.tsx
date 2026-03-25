@@ -20,12 +20,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   getRowClassName?: (row: TData) => string;
+  emptyMessage?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   getRowClassName,
+  emptyMessage = "No se encontraron clientes activos",
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -75,7 +77,7 @@ export function DataTable<TData, TValue>({
                 colSpan={columns.length}
                 className="text-muted-foreground h-24 text-center"
               >
-                No se encontraron clientes activos
+                {emptyMessage}
               </TableCell>
             </TableRow>
           )}
