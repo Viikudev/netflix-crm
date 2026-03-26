@@ -10,8 +10,26 @@ import { Badge } from "@/components/ui/badge";
 const STATUS_LABEL: Record<string, string> = {
   ACTIVE: "Activo",
   EXPIRED: "Expirado",
-  NEAR_EXPIRATION: "Por expirar",
+  NEAR_EXPIRATION: "Cerca de expirar",
 };
+
+function getDerivedStatus(
+  row: ClientStatus,
+): "ACTIVE" | "EXPIRED" | "NEAR_EXPIRATION" {
+  const currentStatus = row.status as "ACTIVE" | "EXPIRED" | "NEAR_EXPIRATION";
+
+  if (currentStatus === "EXPIRED") return "EXPIRED";
+
+  if (!row.expirationDate)
+    return currentStatus === "NEAR_EXPIRATION" ? "NEAR_EXPIRATION" : "ACTIVE";
+
+  const days = differenceInDays(new Date(row.expirationDate), new Date()) + 1;
+
+  if (days < 0) return "EXPIRED";
+  if (days <= 3) return "NEAR_EXPIRATION";
+
+  return "ACTIVE";
+}
 
 export const columns: ColumnDef<ClientStatus>[] = [
   {
@@ -61,7 +79,9 @@ export const columns: ColumnDef<ClientStatus>[] = [
     header: () => <div className="w-40">Días restantes</div>,
     cell: ({ row, getValue }) => {
       const status = row.getValue("status") as string;
+      // const status = getDerivedStatus(row.original);
       if (status === "EXPIRED") return "Expirado";
+      if (status === "NEAR_EXPIRATION") return "Cerca de expirar";
 
       const val = getValue() as string | null | undefined;
       if (!val) return "-";
@@ -73,14 +93,19 @@ export const columns: ColumnDef<ClientStatus>[] = [
     accessorKey: "status",
     header: "Estado de pago",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = getDerivedStatus(row.original);
       const label = STATUS_LABEL[status] ?? status;
 
       if (status === "ACTIVE") {
         return <Badge className="bg-green-200 text-green-700">{label}</Badge>;
       }
+
       if (status === "EXPIRED") {
         return <Badge className="bg-red-200 text-red-700">{label}</Badge>;
+      }
+
+      if (status === "NEAR_EXPIRATION") {
+        return <Badge className="bg-yellow-200 text-yellow-700">{label}</Badge>;
       }
       return <Badge variant="secondary">{label}</Badge>;
     },

@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { z } from "zod";
 import { updateScreen } from "@/services/screens";
 import { updateScreenSchema, UpdateScreenValues } from "@/lib/schemas";
 import type { ScreenProps } from "@/types/screen";
@@ -24,6 +25,8 @@ interface UpdateScreenDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type UpdateScreenFormValues = z.input<typeof updateScreenSchema>;
+
 export default function UpdateScreenDialog({
   screen,
   open,
@@ -35,7 +38,7 @@ export default function UpdateScreenDialog({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UpdateScreenValues>({
+  } = useForm<UpdateScreenFormValues, unknown, UpdateScreenValues>({
     resolver: zodResolver(updateScreenSchema),
     defaultValues: {
       profileName: screen.profileName,

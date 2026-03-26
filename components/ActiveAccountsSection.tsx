@@ -24,6 +24,7 @@ import {
 import UpdateScreenDialog from "./UpdateScreenDialog";
 import type { ScreenProps } from "@/types/screen";
 import ColorContrastChecker from "color-contrast-checker";
+import useIsMobile from "@/hooks/useIsMobile";
 
 const contrastChecker = new ColorContrastChecker();
 
@@ -63,9 +64,9 @@ function ActiveAccountCard({
   const handleCopyProfile = (e: React.MouseEvent, screen: ScreenProps) => {
     e.stopPropagation();
     const textToCopy = `Correo electronico: ${activeAccount.email}
-                        Contraseña: ${activeAccount.password}
-                        Perfil: ${screen.profileName}
-                        PIN: ${screen.profilePIN}`;
+Contraseña: ${activeAccount.password}
+Perfil: ${screen.profileName}
+PIN: ${screen.profilePIN}`;
     navigator.clipboard.writeText(textToCopy);
     toast.success("Datos copiados al portapapeles");
   };
@@ -188,15 +189,36 @@ function ActiveAccountCard({
 }
 
 export default function ActiveAccountsSection() {
+  const [accountIsOpen, setAccountIsOpen] = useState(false);
+  const isMobile = useIsMobile();
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["activeAccounts"],
     queryFn: fetchActiveAccount,
   });
 
+  const handleAccountClick = () => {
+    setAccountIsOpen(!accountIsOpen);
+  };
+
   return (
-    <div className="col-span-2 flex max-h-91 flex-col gap-4 overflow-y-scroll rounded-xl bg-white p-4 shadow-md">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Correos Activos</h2>
+    <div
+      className={`col-span-2 flex max-h-91 flex-col gap-4 overflow-y-scroll rounded-xl bg-white p-4 shadow-md transition-all duration-300 ease-in-out ${accountIsOpen ? "max-sm:max-h-94" : "max-sm:max-h-17 max-sm:overflow-y-hidden"}`}
+    >
+      <div
+        onClick={handleAccountClick}
+        className="flex items-center justify-between"
+      >
+        <div className="flex items-center gap-1">
+          <h2 className="text-lg font-bold">Correos Activos</h2>
+          {isMobile && (
+            <ChevronDown
+              className={`h-5 w-5 transition-transform duration-300 ${
+                accountIsOpen ? "rotate-180" : ""
+              }`}
+            />
+          )}
+        </div>
         <CreateAccountDialog />
       </div>
 
@@ -215,7 +237,9 @@ export default function ActiveAccountsSection() {
         )}
 
         {!isLoading && !isError && data && data.length > 0 && (
-          <div className="grid grid-cols-2 gap-4 max-xl:grid-cols-1">
+          <div
+            className={`grid grid-cols-2 gap-4 transition-all duration-300 ease-in-out max-xl:grid-cols-1 ${accountIsOpen ? "" : "transition-discrete max-sm:hidden max-sm:opacity-0"}`}
+          >
             {data.map((activeAccount: ActiveAccountProps) => (
               <ActiveAccountCard
                 key={activeAccount.id}

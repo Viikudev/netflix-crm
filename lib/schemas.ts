@@ -132,7 +132,11 @@ export type CreateScreenValues = z.infer<typeof createScreenSchema>;
 
 export const updateScreenSchema = z.object({
   profileName: z.string().optional(),
-  profilePIN: z.number().optional(), // Make sure this is z.number() and not missing/unknown
+  profilePIN: z.coerce
+    .number()
+    .int()
+    .gte(1000, "Must be at least 4 digits")
+    .lte(9999, "Must be no more than 4 digits"),
 });
 
 // Best practice: infer the type directly from the schema

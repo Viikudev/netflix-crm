@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import CreateServiceDialog from "@/components/CreateServiceDialog";
 import { useQuery } from "@tanstack/react-query";
 import { fetchServices } from "@/services/services";
@@ -12,17 +14,42 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
+import { ChevronDown } from "lucide-react";
+import useIsMobile from "@/hooks/useIsMobile";
 
 export default function ServicesSection() {
+  const [serviceIsOpen, setServiceIsOpen] = useState(false);
+  const isMobile = useIsMobile();
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["services"],
     queryFn: fetchServices,
   });
 
+  const handleServiceClick = () => {
+    setServiceIsOpen(!serviceIsOpen);
+  };
+
   return (
-    <div className="col-span-2 flex max-h-94 flex-col gap-4 overflow-y-scroll rounded-xl bg-white p-4 shadow-md">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Servicios</h2>
+    <div
+      className={`${
+        serviceIsOpen ? "max-sm:max-h-94" : "max-sm:max-h-17"
+      } col-span-2 flex flex-col gap-4 overflow-y-hidden rounded-xl bg-white p-4 shadow-md transition-all duration-300 ease-in-out`}
+    >
+      <div
+        onClick={handleServiceClick}
+        className="flex items-center justify-between"
+      >
+        <div className="flex items-center gap-1">
+          <h2 className="text-lg font-bold">Servicios</h2>
+          {isMobile && (
+            <ChevronDown
+              className={`h-5 w-5 transition-transform duration-300 ${
+                serviceIsOpen ? "rotate-180" : ""
+              }`}
+            />
+          )}
+        </div>
         <CreateServiceDialog />
       </div>
 
@@ -41,7 +68,9 @@ export default function ServicesSection() {
         )}
 
         {!isLoading && !isError && data && data.length > 0 && (
-          <div className="grid grid-cols-3 gap-4 max-2xl:grid-cols-2 max-lg:grid-cols-1">
+          <div
+            className={`grid grid-cols-3 gap-4 transition-all duration-300 ease-in-out max-2xl:grid-cols-2 max-lg:grid-cols-1 ${serviceIsOpen ? "" : "max-sm:opacity-0"}`}
+          >
             {data.map((service: ServiceProps) => {
               const textColor = service.textColor ?? "#111827";
               const backgroundColor = service.backgroundColor ?? "#f3f4f6";
