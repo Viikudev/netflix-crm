@@ -50,7 +50,10 @@ export default function ServicesSection() {
             />
           )}
         </div>
-        <CreateServiceDialog />
+
+        <div onClick={(e) => e.stopPropagation()}>
+          <CreateServiceDialog />
+        </div>
       </div>
 
       <div>

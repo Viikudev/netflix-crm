@@ -219,7 +219,10 @@ export default function ActiveAccountsSection() {
             />
           )}
         </div>
-        <CreateAccountDialog />
+        <div></div>
+        <div onClick={(e) => e.stopPropagation()}>
+          <CreateAccountDialog />
+        </div>
       </div>
 
       <div>
