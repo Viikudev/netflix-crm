@@ -418,8 +418,9 @@ export default function CreateClientStatusDialog({
             )}
           </div>
 
-          <Separator className="col-span-2 my-2" />
-
+          {date && selectedServiceId && (
+            <Separator className="col-span-2 my-2" />
+          )}
           {calculatedAmount && (
             <div className="col-span-2 space-y-1 rounded-md p-0 text-sm">
               <div className="flex items-center justify-between">

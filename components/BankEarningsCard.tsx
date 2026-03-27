@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ArrowDownToLine, RefreshCw } from "lucide-react";
 import ConvertCurrencyDialog from "./ConvertCurrencyDialog";
 import WithdrawFundsDialog from "./WithdrawFundsDialog";
@@ -78,7 +79,7 @@ export default function BankEarningsCard() {
             </div>
 
             {isLoading ? (
-              <p className="text-sm font-bold">Cargando...</p>
+              <Skeleton className="h-8 w-28 bg-white/25" />
             ) : (
               <div className="flex items-end justify-between">
                 <p className="text-xl font-bold">{totalBs.toFixed(2)} Bs</p>
@@ -111,7 +112,7 @@ export default function BankEarningsCard() {
               </DropdownMenu>
             </div>
             {isLoading ? (
-              <p className="text-md font-bold">Cargando...</p>
+              <Skeleton className="h-8 w-28 bg-white/25" />
             ) : (
               <div className="flex items-end justify-between">
                 <p className="text-xl font-bold text-white">
@@ -144,7 +145,7 @@ export default function BankEarningsCard() {
                 Dinero acumulado en banco (Bs)
               </h2>
               {isLoading ? (
-                <p className="text-sm font-bold">Cargando...</p>
+                <Skeleton className="h-8 w-28 bg-white/25" />
               ) : (
                 <div className="flex items-end justify-between">
                   <p className="text-xl font-bold">{totalBs.toFixed(2)} Bs</p>
@@ -181,7 +182,7 @@ export default function BankEarningsCard() {
                 Dinero acumulado en Binance (USDT)
               </h2>
               {isLoading ? (
-                <p className="text-md font-bold">Cargando...</p>
+                <Skeleton className="h-8 w-28 bg-white/25" />
               ) : (
                 <div className="flex items-end justify-between">
                   <p className="text-xl font-bold text-white">

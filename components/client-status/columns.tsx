@@ -62,7 +62,25 @@ export const columns: ColumnDef<ClientStatus>[] = [
   {
     id: "service",
     header: () => <div className="w-40">Servicio</div>,
-    accessorFn: (row) => row.service?.serviceName ?? row.serviceId,
+    cell: ({ row }) => {
+      const service = row.original.service;
+
+      if (!service) {
+        return <Badge variant="secondary">{row.original.serviceId}</Badge>;
+      }
+
+      return (
+        <Badge
+          className="font-bold"
+          style={{
+            color: service.textColor ?? "#111827",
+            backgroundColor: service.backgroundColor ?? "#f3f4f6",
+          }}
+        >
+          {service.serviceName}
+        </Badge>
+      );
+    },
   },
   {
     id: "profileName",

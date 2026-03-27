@@ -9,6 +9,7 @@ import {
 } from "@/services/clientStatus";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { columns } from "@/components/client-status/columns";
 import { differenceInDays } from "date-fns";
 import { ClientStatus } from "@/types/clientStatus";
@@ -68,7 +69,29 @@ export default function ClientStatusTable() {
       </CardHeader>
       <CardContent className="px-0">
         {isLoading ? (
-          <div>Loading…</div>
+          <div className="space-y-2 px-4 py-3">
+            <div className="grid grid-cols-8 gap-2">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <Skeleton
+                  key={`client-header-skeleton-${index}`}
+                  className="h-8 w-full"
+                />
+              ))}
+            </div>
+            {Array.from({ length: 8 }).map((_, rowIndex) => (
+              <div
+                key={`client-row-skeleton-${rowIndex}`}
+                className="grid grid-cols-8 gap-2"
+              >
+                {Array.from({ length: 8 }).map((_, cellIndex) => (
+                  <Skeleton
+                    key={`client-cell-skeleton-${rowIndex}-${cellIndex}`}
+                    className="h-8 w-full"
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         ) : isError ? (
           <div className="text-destructive">
             {error instanceof Error ? error.message : "An error occurred"}

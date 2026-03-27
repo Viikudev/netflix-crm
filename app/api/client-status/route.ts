@@ -166,7 +166,15 @@ export async function GET() {
         activeAccount: {
           select: { id: true, email: true, expirationDate: true },
         },
-        service: { select: { id: true, serviceName: true, price: true } },
+        service: {
+          select: {
+            id: true,
+            serviceName: true,
+            price: true,
+            textColor: true,
+            backgroundColor: true,
+          },
+        },
         screen: { select: { id: true, profileName: true, profilePIN: true } },
       },
     });

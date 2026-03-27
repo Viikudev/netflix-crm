@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import CreateAccountDialog from "./CreateAccountDialog";
 import { fetchActiveAccount } from "@/services/activeAccount";
@@ -21,6 +21,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
 import UpdateScreenDialog from "./UpdateScreenDialog";
 import type { ScreenProps } from "@/types/screen";
 import ColorContrastChecker from "color-contrast-checker";
@@ -190,6 +191,7 @@ PIN: ${screen.profilePIN}`;
 
 export default function ActiveAccountsSection() {
   const [accountIsOpen, setAccountIsOpen] = useState(false);
+  const [cardsVisible, setCardsVisible] = useState(false);
   const isMobile = useIsMobile();
 
   const { data, isLoading, isError, error } = useQuery({
@@ -200,6 +202,18 @@ export default function ActiveAccountsSection() {
   const handleAccountClick = () => {
     setAccountIsOpen(!accountIsOpen);
   };
+
+  useEffect(() => {
+    if (isLoading || !data || data.length === 0) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setCardsVisible(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [isLoading, data]);
 
   return (
     <div
@@ -226,7 +240,21 @@ export default function ActiveAccountsSection() {
       </div>
 
       <div>
-        {isLoading && <div>Loading active accounts...</div>}
+        {isLoading && (
+          <div className="grid grid-cols-2 gap-4 max-xl:grid-cols-1">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={`account-skeleton-${index}`}
+                className="rounded-xl border bg-white p-4"
+              >
+                <Skeleton className="mb-3 h-6 w-1/2" />
+                <Skeleton className="mb-2 h-4 w-3/4" />
+                <Skeleton className="mb-2 h-4 w-2/3" />
+                <Skeleton className="h-4 w-1/3" />
+              </div>
+            ))}
+          </div>
+        )}
         {isError && (
           <div className="text-red-600">
             Error loading accounts: {error?.message ?? String(error)}
@@ -244,10 +272,12 @@ export default function ActiveAccountsSection() {
             className={`grid grid-cols-2 gap-4 transition-all duration-300 ease-in-out max-xl:grid-cols-1 ${accountIsOpen ? "" : "transition-discrete max-sm:hidden max-sm:opacity-0"}`}
           >
             {data.map((activeAccount: ActiveAccountProps) => (
-              <ActiveAccountCard
+              <div
                 key={activeAccount.id}
-                activeAccount={activeAccount}
-              />
+                className={`transition-all duration-500 ease-out ${cardsVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}
+              >
+                <ActiveAccountCard activeAccount={activeAccount} />
+              </div>
             ))}
           </div>
         )}

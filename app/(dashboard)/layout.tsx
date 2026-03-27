@@ -3,6 +3,8 @@ import Header from "@/components/Header";
 import { BinancePriceProvider } from "@/context/BinancePriceContext";
 import { fetchP2PPrice } from "@/lib/binance";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CreateServiceDialog from "@/components/CreateServiceDialog";
 import { useQuery } from "@tanstack/react-query";
@@ -14,11 +14,13 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown } from "lucide-react";
 import useIsMobile from "@/hooks/useIsMobile";
 
 export default function ServicesSection() {
   const [serviceIsOpen, setServiceIsOpen] = useState(false);
+  const [cardsVisible, setCardsVisible] = useState(false);
   const isMobile = useIsMobile();
 
   const { data, isLoading, isError, error } = useQuery({
@@ -29,6 +31,18 @@ export default function ServicesSection() {
   const handleServiceClick = () => {
     setServiceIsOpen(!serviceIsOpen);
   };
+
+  useEffect(() => {
+    if (isLoading || !data || data.length === 0) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setCardsVisible(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [isLoading, data]);
 
   return (
     <div
@@ -57,7 +71,19 @@ export default function ServicesSection() {
       </div>
 
       <div>
-        {isLoading && <div>Loading services...</div>}
+        {isLoading && (
+          <div className="grid grid-cols-3 gap-4 max-2xl:grid-cols-2 max-lg:grid-cols-1">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={`service-skeleton-${index}`}
+                className="col-span-1 rounded-xl border bg-white p-4"
+              >
+                <Skeleton className="mb-3 h-6 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        )}
         {isError && (
           <div className="text-red-600">
             Error loading services: {error?.message ?? String(error)}
@@ -82,8 +108,11 @@ export default function ServicesSection() {
                 <Item
                   key={service.id}
                   variant="outline"
-                  className="col-span-1 items-center shadow-md"
-                  style={{ backgroundColor }}
+                  className={`col-span-1 items-center shadow-md transition-all duration-300 ease-out ${cardsVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}
+                  style={{
+                    backgroundColor,
+                    // transitionDelay: `${index * 60}ms`,
+                  }}
                 >
                   <ItemContent>
                     <ItemTitle
