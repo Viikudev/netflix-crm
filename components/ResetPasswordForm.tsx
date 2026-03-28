@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 // import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -28,6 +27,7 @@ import {
   FieldError,
   FieldContent,
 } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
 
 const formSchema = z.object({
   password: z.string().min(8),
@@ -141,7 +141,10 @@ export default function ResetPasswordForm({
 
                 <Button className="w-full" disabled={isLoading} type="submit">
                   {isLoading ? (
-                    <Loader2 className="size-4 animate-spin" />
+                    <>
+                      <Spinner />
+                      Reiniciando Contraseña
+                    </>
                   ) : (
                     "Reiniciar Contraseña"
                   )}

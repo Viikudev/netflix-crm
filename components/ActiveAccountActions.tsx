@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ActiveAccountActionsProps {
   activeAccount: ActiveAccountProps;
@@ -78,8 +79,16 @@ export default function ActiveAccountActions({
             <AlertDialogAction
               onClick={() => deleteMutation.mutate()}
               className="bg-destructive hover:bg-destructive/90"
+              disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
+              {deleteMutation.isPending ? (
+                <>
+                  <Spinner />
+                  Eliminando
+                </>
+              ) : (
+                "Eliminar"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

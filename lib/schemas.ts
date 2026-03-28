@@ -103,7 +103,7 @@ export const renewClientStatusSchema = z
     }),
     amount: z.number().int().optional().nullable(),
     priceSource: z.enum(["BINANCE", "CUSTOM"]),
-    customUsdtRate: z.number().positive().optional().nullable(),
+    customUsdtRate: z.number().optional().nullable(),
     supplierPrice: z.number().min(0, "Required"),
   })
   .superRefine((data, ctx) => {

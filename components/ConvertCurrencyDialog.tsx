@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 type ConvertCurrencyDialogProps = {
   open: boolean;
@@ -125,7 +126,14 @@ export default function ConvertCurrencyDialog({
             className="w-full"
             disabled={mutation.isPending || !amountBs || !rate || isRateTooHigh}
           >
-            {mutation.isPending ? "Convirtiendo..." : "Confirmar Conversión"}
+            {mutation.isPending ? (
+              <>
+                <Spinner />
+                Convirtiendo
+              </>
+            ) : (
+              "Confirmar Conversión"
+            )}
           </Button>
         </form>
       </DialogContent>

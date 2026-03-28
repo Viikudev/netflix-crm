@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { useState, useMemo } from "react";
 import { format, differenceInDays } from "date-fns";
 import { es } from "date-fns/locale";
@@ -24,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -507,7 +507,14 @@ export default function CreateClientStatusDialog({
               </Button>
             </DialogClose>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Creando..." : "Crear"}
+              {mutation.isPending ? (
+                <>
+                  <Spinner />
+                  Creando
+                </>
+              ) : (
+                "Crear"
+              )}
             </Button>
           </DialogFooter>
         </form>

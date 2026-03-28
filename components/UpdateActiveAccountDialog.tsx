@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { z } from "zod";
 
 interface UpdateActiveAccountDialogProps {
@@ -178,7 +179,14 @@ export default function UpdateActiveAccountDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Guardando..." : "Guardar cambios"}
+              {mutation.isPending ? (
+                <>
+                  <Spinner />
+                  Guardar cambios
+                </>
+              ) : (
+                "Guardar cambios"
+              )}
             </Button>
           </div>
         </form>

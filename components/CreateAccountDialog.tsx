@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 type FormValues = {
   email: string;
@@ -233,7 +234,14 @@ export default function CreateAccountDialog() {
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || mutation.isPending}>
-              {mutation.isPending ? "Creando..." : "Crear"}
+              {mutation.isPending ? (
+                <>
+                  <Spinner />
+                  Creando
+                </>
+              ) : (
+                "Crear"
+              )}
             </Button>
           </div>
         </form>

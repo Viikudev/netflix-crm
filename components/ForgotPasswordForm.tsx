@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Field,
   FieldDescription,
@@ -164,7 +165,14 @@ export default function ForgotPasswordForm() {
                 className="w-full font-bold"
                 disabled={mutation.isPending}
               >
-                {mutation.isPending ? "Enviando..." : "Enviar enlace"}
+                {mutation.isPending ? (
+                  <>
+                    <Spinner />
+                    Enviando
+                  </>
+                ) : (
+                  "Enviar enlace"
+                )}
               </Button>
             </FieldGroup>
           </FieldSet>

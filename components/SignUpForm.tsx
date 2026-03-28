@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 import {
   Field,
@@ -96,8 +97,8 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+    <div className="flex min-h-dvh items-center justify-center bg-slate-50 p-6 max-sm:items-start max-sm:pt-[15vh]">
+      <div className="h-fit w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldSet>
             <FieldLegend>Formulario de creacion de cuenta</FieldLegend>
@@ -157,8 +158,19 @@ export default function SignUpForm() {
                 )}
               />
 
-              <Button type="submit" className="w-full font-bold">
-                {signUpMutation.isPending ? "Creando..." : "Crear Cuenta"}
+              <Button
+                type="submit"
+                className="w-full font-bold"
+                disabled={signUpMutation.isPending}
+              >
+                {signUpMutation.isPending ? (
+                  <>
+                    <Spinner />
+                    Creando Cuenta
+                  </>
+                ) : (
+                  "Crear Cuenta"
+                )}
               </Button>
             </FieldGroup>
           </FieldSet>

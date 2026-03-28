@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
   SelectContent,
@@ -101,7 +102,7 @@ export default function ClientStatusRenewDialog({
 
     const rate =
       selectedPriceSource === "CUSTOM"
-        ? typeof customUsdtRate === "number" && customUsdtRate > 0
+        ? typeof customUsdtRate === "number" && customUsdtRate >= 0
           ? customUsdtRate
           : null
         : binancePrice;
@@ -302,7 +303,14 @@ export default function ClientStatusRenewDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={mutation.isPending || !date}>
-              {mutation.isPending ? "Renovando..." : "Renovar"}
+              {mutation.isPending ? (
+                <>
+                  <Spinner />
+                  Renovando
+                </>
+              ) : (
+                "Renovar"
+              )}
             </Button>
           </div>
         </form>

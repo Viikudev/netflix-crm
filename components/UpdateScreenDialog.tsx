@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 interface UpdateScreenDialogProps {
   screen: ScreenProps;
@@ -104,7 +105,14 @@ export default function UpdateScreenDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Guardando..." : "Guardar cambios"}
+              {mutation.isPending ? (
+                <>
+                  <Spinner />
+                  Guardar cambios
+                </>
+              ) : (
+                "Guardar cambios"
+              )}
             </Button>
           </div>
         </form>

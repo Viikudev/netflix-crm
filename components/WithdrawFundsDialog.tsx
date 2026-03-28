@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 
 type WithdrawFundsDialogProps = {
@@ -130,7 +131,14 @@ export default function WithdrawFundsDialog({
             className="w-full"
             disabled={mutation.isPending || !amount || !reason.trim()}
           >
-            {mutation.isPending ? "Retirando..." : "Confirmar retiro"}
+            {mutation.isPending ? (
+              <>
+                <Spinner />
+                Confirmar retiro
+              </>
+            ) : (
+              "Confirmar retiro"
+            )}
           </Button>
         </form>
       </DialogContent>

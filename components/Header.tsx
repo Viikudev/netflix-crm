@@ -36,7 +36,7 @@ export default function Header({ price }: { price: number | null }) {
     }
   };
   return (
-    <header className="sticky top-0 z-1 flex items-center justify-between bg-white px-10 py-2 max-sm:px-4">
+    <header className="sticky top-0 z-49 flex items-center justify-between bg-white px-10 py-2 max-sm:px-4">
       <div className="flex gap-4">
         <h1 className="text-2xl font-bold">Streamings PZO</h1>
         <BinancePriceCard price={price} />

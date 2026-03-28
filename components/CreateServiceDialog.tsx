@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { z } from "zod";
 
 export default function CreateServiceDialog() {
@@ -203,7 +204,14 @@ export default function CreateServiceDialog() {
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creando..." : "Crear"}
+              {isSubmitting ? (
+                <>
+                  <Spinner />
+                  Creando
+                </>
+              ) : (
+                "Crear"
+              )}
             </Button>
           </div>
         </form>

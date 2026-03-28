@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function CreateClientDialog() {
   const [open, setOpen] = useState(false);
@@ -119,7 +120,14 @@ export default function CreateClientDialog() {
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting || mutation.isPending}>
-              {isSubmitting || mutation.isPending ? "Creando..." : "Crear"}
+              {isSubmitting || mutation.isPending ? (
+                <>
+                  <Spinner />
+                  Creando
+                </>
+              ) : (
+                "Crear"
+              )}
             </Button>
           </div>
         </form>
