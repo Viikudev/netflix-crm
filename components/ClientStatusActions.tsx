@@ -32,6 +32,10 @@ interface ClientStatusActionsProps {
 export default function ClientStatusActions({
   clientStatus,
 }: ClientStatusActionsProps) {
+  const clientName = clientStatus.client?.clientName ?? clientStatus.clientName;
+  const phoneNumber =
+    clientStatus.client?.phoneNumber ?? clientStatus.phoneNumber;
+
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showRenewDialog, setShowRenewDialog] = useState(false);
@@ -66,8 +70,8 @@ export default function ClientStatusActions({
       />
 
       <ClientStatusMessageDialog
-        clientName={clientStatus.clientName}
-        phoneNumber={clientStatus.phoneNumber}
+        clientName={clientName}
+        phoneNumber={phoneNumber}
         open={showMessageDialog}
         onOpenChange={setShowMessageDialog}
       />
@@ -78,7 +82,7 @@ export default function ClientStatusActions({
             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. Esto eliminará permanentemente
-              el estado del cliente &quot;{clientStatus.clientName}&quot;.
+              el estado del cliente &quot;{clientName}&quot;.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -107,7 +111,7 @@ export default function ClientStatusActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Editar cliente</p>
+            <p>Editar suscripcion</p>
           </TooltipContent>
         </Tooltip>
 
@@ -124,7 +128,7 @@ export default function ClientStatusActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Eliminar cliente</p>
+            <p>Eliminar suscripcion</p>
           </TooltipContent>
         </Tooltip>
 
@@ -141,7 +145,7 @@ export default function ClientStatusActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Renovar cliente</p>
+            <p>Renovar suscripcion</p>
           </TooltipContent>
         </Tooltip>
 

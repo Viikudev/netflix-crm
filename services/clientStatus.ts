@@ -1,8 +1,9 @@
 import axiosInstance from "@/lib/axiosInstance";
 
 export type CreateClientStatusPayload = {
-  clientName: string;
-  phoneNumber: string;
+  clientId: string;
+  clientName?: string;
+  phoneNumber?: string;
   activeAccountId: string;
   serviceId: string;
   screenId: string;

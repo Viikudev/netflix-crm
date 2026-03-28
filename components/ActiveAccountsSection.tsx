@@ -217,11 +217,11 @@ export default function ActiveAccountsSection() {
 
   return (
     <div
-      className={`col-span-2 flex max-h-91 flex-col gap-4 overflow-y-scroll rounded-xl bg-white p-4 shadow-md transition-all duration-300 ease-in-out ${accountIsOpen ? "max-sm:max-h-94" : "max-sm:max-h-17 max-sm:overflow-y-hidden"}`}
+      className={`col-span-2 flex max-h-91 flex-col overflow-y-scroll rounded-xl bg-white shadow-md transition-all duration-300 ease-in-out ${accountIsOpen ? "max-sm:max-h-94" : "max-sm:max-h-17 max-sm:overflow-y-hidden"}`}
     >
       <div
         onClick={handleAccountClick}
-        className="flex items-center justify-between"
+        className="sticky top-0 z-1 flex items-center justify-between bg-white p-4"
       >
         <div className="flex items-center gap-1">
           <h2 className="text-lg font-bold">Correos Activos</h2>
@@ -269,7 +269,7 @@ export default function ActiveAccountsSection() {
 
         {!isLoading && !isError && data && data.length > 0 && (
           <div
-            className={`grid grid-cols-2 gap-4 transition-all duration-300 ease-in-out max-xl:grid-cols-1 ${accountIsOpen ? "" : "transition-discrete max-sm:hidden max-sm:opacity-0"}`}
+            className={`grid grid-cols-2 gap-4 px-4 pb-4 transition-all duration-300 ease-in-out max-xl:grid-cols-1 ${accountIsOpen ? "" : "transition-discrete max-sm:hidden max-sm:opacity-0"}`}
           >
             {data.map((activeAccount: ActiveAccountProps) => (
               <div

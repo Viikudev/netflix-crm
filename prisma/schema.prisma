@@ -92,7 +92,7 @@ model Service {
   createdById String?
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
-  clientStatuses ClientStatus[]
+  subscriptions Subscription[]
   activeAccounts ActiveAccount[]
 
   @@index([createdById])
@@ -109,7 +109,7 @@ model ActiveAccount {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  clientStatuses ClientStatus[]
+  subscriptions Subscription[]
   screens        Screen[]
 
   @@unique([email])
@@ -124,7 +124,7 @@ model Screen {
   activeAccountId String
   activeAccount   ActiveAccount  @relation(fields: [activeAccountId], references: [id], onDelete: Cascade)
   
-  clientStatuses  ClientStatus[]
+  subscriptions  Subscription[]
 
   @@index([activeAccountId])
   @@map("screen")
@@ -137,10 +137,23 @@ enum ClientStatusEnum {
   NEAR_EXPIRATION
 }
 
-model ClientStatus {
+model Client {
+  id            String         @id @default(uuid())
+  clientName    String
+  phoneNumber   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  subscriptions Subscription[]
+
+  @@unique([phoneNumber])
+  @@map("clients")
+}
+
+model Subscription {
   id              String           @id @default(uuid())
-  clientName      String
-  phoneNumber     String
+  clientId        String
+  client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
   activeAccountId String
   activeAccount   ActiveAccount    @relation(fields: [activeAccountId], references: [id], onDelete: Cascade)
   serviceId       String
@@ -153,10 +166,11 @@ model ClientStatus {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
+  @@index([clientId])
   @@index([activeAccountId])
   @@index([serviceId])
   @@index([screenId])
-  @@map("client_status")
+  @@map("subscriptions")
 }
 
 model BankEarnings {

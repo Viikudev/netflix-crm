@@ -61,8 +61,8 @@ export default function WithdrawalsTable() {
   );
 
   return (
-    <Card className="col-span-4 gap-4 pb-0! max-sm:col-span-1 max-sm:py-4">
-      <CardHeader className="max-sm:px-4">
+    <Card className="col-span-4 gap-0 py-0 pb-0! max-sm:col-span-1">
+      <CardHeader className="gap-0 py-4 max-sm:px-4">
         <CardTitle className="text-lg font-bold">Retiros</CardTitle>
       </CardHeader>
       <CardContent className="px-0">

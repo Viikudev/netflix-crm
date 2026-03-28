@@ -2,6 +2,12 @@ export type ClientStatus = {
   id: string;
   clientName: string;
   phoneNumber: string;
+  clientId: string;
+  client?: {
+    id: string;
+    clientName: string;
+    phoneNumber: string;
+  } | null;
   activeAccountId: string;
   activeAccount?: { id: string; email: string } | null;
   serviceId: string;

@@ -6,7 +6,7 @@ import { format, differenceInDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { useBinancePrice } from "@/context/BinancePriceContext";
@@ -45,6 +45,7 @@ import {
   createClientStatus,
   type CreateClientStatusPayload,
 } from "@/services/clientStatus";
+import { fetchClients } from "@/services/clients";
 import { fetchServices } from "@/services/services";
 import { fetchActiveAccount } from "@/services/activeAccount";
 import { fetchScreens } from "@/services/screens";
@@ -56,6 +57,7 @@ import {
 import { ServiceProps } from "@/types/service";
 import { ActiveAccountProps } from "@/types/activeAccount";
 import { ScreenProps } from "@/types/screen";
+import { Client } from "@/types/client";
 
 export type CreateClientStatusDialogProps = {
   onCreated?: (item: CreateClientStatusPayload) => void;
@@ -73,14 +75,13 @@ export default function CreateClientStatusDialog({
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
+    control,
     formState: { errors },
   } = useForm<CreateClientStatusValues>({
     resolver: zodResolver(createClientStatusSchema),
     defaultValues: {
-      clientName: "",
-      phoneNumber: "",
+      clientId: "",
       activeAccountId: "",
       serviceId: "",
       screenId: "",
@@ -92,11 +93,17 @@ export default function CreateClientStatusDialog({
     },
   });
 
-  const selectedAccountId = watch("activeAccountId");
-  const selectedServiceId = watch("serviceId");
-  const selectedPriceSource = watch("priceSource");
-  const customUsdtRate = watch("customUsdtRate");
-  const supplierPrice = watch("supplierPrice");
+  const selectedAccountId = useWatch({ control, name: "activeAccountId" });
+  const selectedServiceId = useWatch({ control, name: "serviceId" });
+  const selectedPriceSource = useWatch({ control, name: "priceSource" });
+  const customUsdtRate = useWatch({ control, name: "customUsdtRate" });
+  const supplierPrice = useWatch({ control, name: "supplierPrice" });
+  const selectedClientId = useWatch({ control, name: "clientId" });
+
+  const { data: clients = [] } = useQuery<Client[]>({
+    queryKey: ["clients"],
+    queryFn: fetchClients,
+  });
 
   const { data: services = [] } = useQuery<ServiceProps[]>({
     queryKey: ["services"],
@@ -183,6 +190,9 @@ export default function CreateClientStatusDialog({
     supplierPrice,
   ]);
 
+  const selectedClient =
+    clients.find((client) => client.id === selectedClientId) ?? null;
+
   const onSubmit = (data: CreateClientStatusValues) => {
     setError(null);
     let expirationDate = data.expirationDate;
@@ -192,8 +202,7 @@ export default function CreateClientStatusDialog({
     }
 
     mutation.mutate({
-      clientName: data.clientName,
-      phoneNumber: data.phoneNumber,
+      clientId: data.clientId,
       activeAccountId: data.activeAccountId,
       serviceId: data.serviceId,
       screenId: data.screenId,
@@ -206,15 +215,15 @@ export default function CreateClientStatusDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Nuevo Cliente</Button>
+        <Button variant="outline">Nueva Suscripcion</Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Crear registro de cliente</DialogTitle>
+          <DialogTitle>Crear suscripcion</DialogTitle>
           <DialogDescription>
-            Llena el formulario para crear un nuevo registro de estado de
-            cliente.
+            Seleccione un cliente existente y complete los datos de la
+            suscripcion.
           </DialogDescription>
         </DialogHeader>
 
@@ -223,28 +232,55 @@ export default function CreateClientStatusDialog({
           className="grid grid-cols-2 gap-3"
         >
           <div className="col-span-2">
-            <Label>Nombre del cliente</Label>
-            <Input {...register("clientName")} placeholder="Ej: John Doe" />
-            {errors.clientName && (
+            <Label>Cliente</Label>
+            <Select
+              value={selectedClientId || undefined}
+              onValueChange={(value) =>
+                setValue("clientId", value, { shouldValidate: true })
+              }
+              disabled={clients.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccionar cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup className="max-h-70 overflow-y-auto">
+                  <SelectLabel className="sticky top-0 z-999 bg-white!">
+                    Clientes
+                  </SelectLabel>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.clientName} ({client.phoneNumber})
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <p className="text-muted-foreground mt-1 text-xs">
+              Si no encuentras el cliente, crealo primero en la pestaña
+              Clientes.
+            </p>
+            {errors.clientId && (
               <p className="text-destructive text-sm">
-                {errors.clientName.message}
+                {errors.clientId.message}
               </p>
             )}
           </div>
 
           <div className="col-span-2 grid grid-cols-2 gap-4">
-            <div className="col-span-1">
-              <Label>Número de teléfono</Label>
-              <Input
-                {...register("phoneNumber")}
-                placeholder="Ej: 58424XXXXXXX"
-              />
-              {errors.phoneNumber && (
-                <p className="text-destructive text-sm">
-                  {errors.phoneNumber.message}
-                </p>
-              )}
-            </div>
+            {selectedClientId ? (
+              <div className="col-span-1">
+                <Label>Numero de telefono</Label>
+                <Input
+                  value={selectedClient?.phoneNumber ?? ""}
+                  placeholder="Selecciona un cliente"
+                  readOnly
+                  disabled
+                />
+              </div>
+            ) : (
+              <div></div>
+            )}
 
             <div className="col-span-1">
               <Label>Cuenta activa</Label>

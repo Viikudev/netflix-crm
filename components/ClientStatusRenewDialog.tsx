@@ -53,6 +53,7 @@ export default function ClientStatusRenewDialog({
   open,
   onOpenChange,
 }: ClientStatusRenewDialogProps) {
+  const clientName = clientStatus.client?.clientName ?? clientStatus.clientName;
   const queryClient = useQueryClient();
 
   // default to current date when opened
@@ -160,8 +161,8 @@ export default function ClientStatusRenewDialog({
         <DialogHeader>
           <DialogTitle>Renovar Cliente</DialogTitle>
           <DialogDescription>
-            Renueva la suscripción de &quot;{clientStatus.clientName}&quot;.
-            Establece la nueva fecha de expiración.
+            Renueva la suscripción de &quot;{clientName}&quot;. Establece la
+            nueva fecha de expiración.
           </DialogDescription>
         </DialogHeader>
 

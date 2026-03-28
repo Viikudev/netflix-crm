@@ -14,6 +14,20 @@ export const createServiceSchema = z.object({
 
 export type CreateServiceValues = z.infer<typeof createServiceSchema>;
 
+export const createClientSchema = z.object({
+  clientName: z
+    .string()
+    .max(40, "El nombre del cliente debe tener como maximo 40 caracteres")
+    .min(1, "Required"),
+  phoneNumber: z.string().min(1, "Required"),
+});
+
+export type CreateClientValues = z.infer<typeof createClientSchema>;
+
+export const updateClientSchema = createClientSchema.partial();
+
+export type UpdateClientValues = z.infer<typeof updateClientSchema>;
+
 export const createActiveAccountSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
@@ -29,11 +43,12 @@ export type CreateActiveAccountValues = z.infer<
 
 export const createClientStatusSchema = z
   .object({
+    clientId: z.string().min(1, "Required"),
     clientName: z
       .string()
-      .max(40, "El nombre del cliente debe tener como máximo 20 caracteres")
-      .min(1, "Required"),
-    phoneNumber: z.string().min(1, "Required"),
+      .max(40, "El nombre del cliente debe tener como maximo 40 caracteres")
+      .optional(),
+    phoneNumber: z.string().optional(),
     activeAccountId: z.string().min(1, "Required"),
     serviceId: z.string().min(1, "Required"),
     screenId: z.string().min(1, "Required"),
@@ -61,6 +76,25 @@ export const createClientStatusSchema = z
   });
 
 export type CreateClientStatusValues = z.infer<typeof createClientStatusSchema>;
+
+export const createClientStatusRequestSchema = z.object({
+  clientId: z.string().min(1, "Required"),
+  clientName: z
+    .string()
+    .max(40, "El nombre del cliente debe tener como maximo 40 caracteres")
+    .optional(),
+  phoneNumber: z.string().optional(),
+  activeAccountId: z.string().min(1, "Required"),
+  serviceId: z.string().min(1, "Required"),
+  screenId: z.string().min(1, "Required"),
+  status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]),
+  expirationDate: z.string().optional().nullable(),
+  amount: z.number().int().optional().nullable(),
+});
+
+export type CreateClientStatusRequestValues = z.infer<
+  typeof createClientStatusRequestSchema
+>;
 
 export const renewClientStatusSchema = z
   .object({
@@ -91,15 +125,17 @@ export const renewClientStatusSchema = z
 export type RenewClientStatusValues = z.infer<typeof renewClientStatusSchema>;
 
 export const updateClientStatusSchema = z.object({
+  clientId: z.string().min(1, "Required").optional(),
   clientName: z
     .string()
-    .max(40, "El nombre del cliente debe tener como máximo 20 caracteres")
-    .min(1, "Required"),
-  phoneNumber: z.string().min(1, "Required"),
-  activeAccountId: z.string().min(1, "Required"),
-  serviceId: z.string().min(1, "Required"),
-  screenId: z.string().min(1, "Required"),
-  status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]),
+    .max(40, "El nombre del cliente debe tener como maximo 40 caracteres")
+    .min(1, "Required")
+    .optional(),
+  phoneNumber: z.string().min(1, "Required").optional(),
+  activeAccountId: z.string().min(1, "Required").optional(),
+  serviceId: z.string().min(1, "Required").optional(),
+  screenId: z.string().min(1, "Required").optional(),
+  status: z.enum(["ACTIVE", "EXPIRED", "NEAR_EXPIRATION"]).optional(),
   expirationDate: z.string().optional().nullable(),
   amount: z.number().int().optional().nullable(),
 });

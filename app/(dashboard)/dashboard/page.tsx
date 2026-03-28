@@ -7,6 +7,7 @@ import ActiveAccountsSection from "@/components/ActiveAccountsSection";
 // import BinancePriceCard from "@/components/BinancePriceCard";
 import BankEarningsCard from "@/components/BankEarningsCard";
 import ClientStatusTable from "@/components/ClientStatusTable";
+import ClientsTable from "@/components/ClientsTable";
 import WithdrawalsTable from "@/components/WithdrawalsTable";
 // import { BinancePriceProvider } from "@/context/BinancePriceContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,6 +41,9 @@ export default async function ResetPasswordPage() {
           <TabsTrigger value="panel-principal" className="px-4">
             Panel Principal
           </TabsTrigger>
+          <TabsTrigger value="clientes" className="px-4">
+            Clientes
+          </TabsTrigger>
           <TabsTrigger value="retiros" className="px-4">
             Retiros
           </TabsTrigger>
@@ -57,6 +61,10 @@ export default async function ResetPasswordPage() {
             <ActiveAccountsSection />
             <ClientStatusTable />
           </div>
+        </TabsContent>
+
+        <TabsContent value="clientes">
+          <ClientsTable />
         </TabsContent>
 
         <TabsContent value="retiros">

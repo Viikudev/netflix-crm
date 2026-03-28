@@ -5,6 +5,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateClientStatus } from "@/services/clientStatus";
+import { fetchClients } from "@/services/clients";
 import { fetchServices } from "@/services/services";
 import { fetchActiveAccount } from "@/services/activeAccount";
 import { fetchScreens } from "@/services/screens";
@@ -13,6 +14,7 @@ import {
   UpdateClientStatusValues,
 } from "@/lib/schemas";
 import { ClientStatus } from "@/types/clientStatus";
+import { Client } from "@/types/client";
 import { ServiceProps } from "@/types/service";
 import { ActiveAccountProps } from "@/types/activeAccount";
 import { ScreenProps } from "@/types/screen";
@@ -60,13 +62,17 @@ export default function UpdateClientStatusDialog({
     queryFn: fetchServices,
   });
 
+  const clients = useQuery<Client[]>({
+    queryKey: ["clients"],
+    queryFn: fetchClients,
+  });
+
   const activeAccounts = useQuery<ActiveAccountProps[]>({
     queryKey: ["activeAccounts"],
     queryFn: fetchActiveAccount,
   });
 
   const {
-    register,
     handleSubmit,
     setValue,
     control,
@@ -74,8 +80,7 @@ export default function UpdateClientStatusDialog({
   } = useForm({
     resolver: zodResolver(updateClientStatusSchema),
     defaultValues: {
-      clientName: clientStatus.clientName,
-      phoneNumber: clientStatus.phoneNumber,
+      clientId: clientStatus.clientId,
       activeAccountId: clientStatus.activeAccountId,
       serviceId: clientStatus.serviceId,
       screenId: clientStatus.screenId,
@@ -92,6 +97,14 @@ export default function UpdateClientStatusDialog({
     control,
     name: "activeAccountId",
   });
+
+  const selectedClientId = useWatch({
+    control,
+    name: "clientId",
+  });
+
+  const selectedClient =
+    clients.data?.find((client) => client.id === selectedClientId) ?? null;
 
   const screens = useQuery<ScreenProps[]>({
     queryKey: ["screens", selectedAccountId],
@@ -130,32 +143,53 @@ export default function UpdateClientStatusDialog({
       )}
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Actualizar Estado del Cliente</DialogTitle>
+          <DialogTitle>Actualizar suscripcion</DialogTitle>
           <DialogDescription>
-            Modifique los datos del estado del cliente.
+            Modifique los datos de la suscripcion.
           </DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <Label>Nombre del Cliente</Label>
-            <Input {...register("clientName")} />
-            {errors.clientName && (
+            <Label>Cliente</Label>
+            <Select
+              value={selectedClientId || undefined}
+              onValueChange={(value) =>
+                setValue("clientId", value, { shouldValidate: true })
+              }
+              disabled={clients.isLoading || (clients.data?.length ?? 0) === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccionar cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup className="max-h-70 overflow-y-auto">
+                  <SelectLabel className="sticky top-0 z-999 bg-white!">
+                    Clientes
+                  </SelectLabel>
+                  {(clients.data ?? []).map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.clientName} ({client.phoneNumber})
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <p className="text-muted-foreground mt-1 text-xs">
+              Si no encuentras el cliente, crealo primero en la pestaña
+              Clientes.
+            </p>
+            {errors.clientId && (
               <p className="text-destructive">
-                {String(errors.clientName.message)}
+                {String(errors.clientId.message)}
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Teléfono</Label>
-              <Input {...register("phoneNumber")} />
-              {errors.phoneNumber && (
-                <p className="text-destructive">
-                  {String(errors.phoneNumber.message)}
-                </p>
-              )}
+              <Label>Telefono</Label>
+              <Input value={selectedClient?.phoneNumber ?? ""} readOnly />
             </div>
 
             <div>

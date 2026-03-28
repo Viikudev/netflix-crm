@@ -1,11 +1,23 @@
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
 import { ClientStatusEnum } from "@/lib/generated/prisma/enums";
+import { createClientStatusRequestSchema } from "@/lib/schemas";
+
+function normalizePhoneNumber(phone: string) {
+  return phone.trim();
+}
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const parsed = createClientStatusRequestSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ message: "Invalid data" }, { status: 400 });
+    }
+
     const {
+      clientId,
       clientName,
       phoneNumber,
       activeAccountId,
@@ -13,49 +25,10 @@ export async function POST(req: Request) {
       screenId,
       status,
       amount,
-    } = body ?? {};
-
-    if (!clientName || typeof clientName !== "string") {
-      return NextResponse.json(
-        { message: "clientName is required" },
-        { status: 400 },
-      );
-    }
-
-    if (!phoneNumber || typeof phoneNumber !== "string") {
-      return NextResponse.json(
-        { message: "phoneNumber is required" },
-        { status: 400 },
-      );
-    }
-
-    if (!activeAccountId || typeof activeAccountId !== "string") {
-      return NextResponse.json(
-        { message: "activeAccountId is required" },
-        { status: 400 },
-      );
-    }
-
-    if (!serviceId || typeof serviceId !== "string") {
-      return NextResponse.json(
-        { message: "serviceId is required" },
-        { status: 400 },
-      );
-    }
-
-    if (!screenId || typeof screenId !== "string") {
-      return NextResponse.json(
-        { message: "screenId is required" },
-        { status: 400 },
-      );
-    }
+    } = parsed.data;
 
     const validStatuses = Object.values(ClientStatusEnum);
-    if (
-      !status ||
-      typeof status !== "string" ||
-      !validStatuses.includes(status as ClientStatusEnum)
-    ) {
+    if (!validStatuses.includes(status as ClientStatusEnum)) {
       return NextResponse.json(
         {
           message: `status is required and must be one of: ${validStatuses.join(", ")}`,
@@ -103,12 +76,53 @@ export async function POST(req: Request) {
         : null;
 
     const actualAmount = typeof amount === "number" ? amount : null;
+    let resolvedClientId = clientId;
+
+    if (!resolvedClientId && phoneNumber && clientName) {
+      const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+
+      const client = await prisma.client.upsert({
+        where: { phoneNumber: normalizedPhoneNumber },
+        update: {
+          clientName,
+        },
+        create: {
+          clientName,
+          phoneNumber: normalizedPhoneNumber,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      resolvedClientId = client.id;
+    }
+
+    if (!resolvedClientId) {
+      return NextResponse.json(
+        { message: "clientId is required" },
+        { status: 400 },
+      );
+    }
+
+    const clientExists = await prisma.client.findUnique({
+      where: { id: resolvedClientId },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!clientExists) {
+      return NextResponse.json(
+        { message: "client not found" },
+        { status: 404 },
+      );
+    }
 
     const [created] = await prisma.$transaction([
-      prisma.clientStatus.create({
+      prisma.subscription.create({
         data: {
-          clientName,
-          phoneNumber,
+          clientId: resolvedClientId,
           activeAccountId,
           serviceId,
           screenId,
@@ -116,6 +130,15 @@ export async function POST(req: Request) {
             providedExpiration ?? accountExists.expirationDate ?? null,
           amount: actualAmount,
           status: status as ClientStatusEnum,
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              clientName: true,
+              phoneNumber: true,
+            },
+          },
         },
       }),
       prisma.bankEarnings.upsert({
@@ -132,7 +155,14 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    return NextResponse.json(created, { status: 201 });
+    return NextResponse.json(
+      {
+        ...created,
+        clientName: created.client.clientName,
+        phoneNumber: created.client.phoneNumber,
+      },
+      { status: 201 },
+    );
   } catch (err: unknown) {
     // Log error to server console for debugging
     console.error("/api/client-status POST error:", err);
@@ -150,7 +180,7 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     // Auto-expire records
-    await prisma.clientStatus.updateMany({
+    await prisma.subscription.updateMany({
       where: {
         expirationDate: { lt: new Date() },
         status: { not: "EXPIRED" },
@@ -160,9 +190,12 @@ export async function GET() {
       },
     });
 
-    const items = await prisma.clientStatus.findMany({
+    const items = await prisma.subscription.findMany({
       orderBy: { createdAt: "desc" },
       include: {
+        client: {
+          select: { id: true, clientName: true, phoneNumber: true },
+        },
         activeAccount: {
           select: { id: true, email: true, expirationDate: true },
         },
@@ -182,6 +215,8 @@ export async function GET() {
     // Map enum values to a more friendly string if desired
     const mapped = items.map((it) => ({
       ...it,
+      clientName: it.client.clientName,
+      phoneNumber: it.client.phoneNumber,
       status: it.status,
     }));
 

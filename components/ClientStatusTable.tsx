@@ -60,10 +60,10 @@ export default function ClientStatusTable() {
   }
 
   return (
-    <Card className="col-span-4 gap-0 pb-0! max-sm:col-span-1 max-sm:py-4">
-      <CardHeader className="pb-4 shadow-md max-sm:gap-0 max-sm:px-4">
+    <Card className="col-span-4 gap-0 py-0 pb-0! max-sm:col-span-1">
+      <CardHeader className="gap-0 py-4 shadow-md max-sm:gap-0 max-sm:px-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold">Clientes </CardTitle>
+          <CardTitle className="text-lg font-bold">Suscripciones</CardTitle>
           <CreateClientStatusDialog onCreated={handleCreated} />
         </div>
       </CardHeader>
