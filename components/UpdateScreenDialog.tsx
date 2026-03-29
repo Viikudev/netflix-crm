@@ -5,8 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { z } from "zod";
 import { updateScreen } from "@/services/screens";
-import { updateScreenSchema, UpdateScreenValues } from "@/lib/schemas";
-import type { ScreenProps } from "@/types/screen";
+import {
+  updateScreenSchema,
+  UpdateScreenValues,
+  UpdateScreenFormValues,
+} from "@/lib/schemas";
+import type { UpdateScreenDialogProps } from "@/types/screen";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,14 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-
-interface UpdateScreenDialogProps {
-  screen: ScreenProps;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-type UpdateScreenFormValues = z.input<typeof updateScreenSchema>;
 
 export default function UpdateScreenDialog({
   screen,

@@ -10,13 +10,7 @@ import {
 import { Button } from "./ui/button";
 import { MailOpen, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-
-interface EmailVerificationWindowProps {
-  email?: string;
-  onResend?: () => void | Promise<void>;
-  onClose?: () => void;
-  className?: string;
-}
+import { EmailVerificationWindowProps } from "@/types/emailVerification";
 
 export default function EmailVerificationWindow({
   onClose,

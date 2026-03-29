@@ -175,5 +175,45 @@ export const updateScreenSchema = z.object({
     .lte(9999, "Must be no more than 4 digits"),
 });
 
+export type UpdateScreenFormValues = z.input<typeof updateScreenSchema>;
+
 // Best practice: infer the type directly from the schema
 export type UpdateScreenValues = z.infer<typeof updateScreenSchema>;
+
+// SIGN IN SCHEMA
+
+export const signInFormSchema = z.object({
+  email: z.email("Correo no valido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
+export type SignInFormValues = z.infer<typeof signInFormSchema>;
+
+// SIGN UP SCHEMA
+
+export const signUpFormSchema = z.object({
+  name: z.string().min(2, "El nombre es obligatorio"),
+  email: z.email("Correo no valido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
+export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
+
+// FORGOT PASSWORD SCHEMA
+
+export const forgotPasswordFormSchema = z.object({
+  email: z.email("Correo no valido"),
+});
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
+
+export type CheckEmailResponse =
+  | { exists: false; emailVerified: false }
+  | { exists: true; emailVerified: boolean };
+
+// RESET PASSWORD
+
+export const resetPasswordFormSchema = z.object({
+  password: z.string().min(8),
+  confirmPassword: z.string().min(8),
+});

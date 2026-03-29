@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-// import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -17,22 +16,16 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-// import { cn } from "@/lib/utils";
 import {
   Field,
   FieldLabel,
-  // FieldDescription,
   FieldGroup,
   FieldSet,
   FieldError,
   FieldContent,
 } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-
-const formSchema = z.object({
-  password: z.string().min(8),
-  confirmPassword: z.string().min(8),
-});
+import { resetPasswordFormSchema } from "@/lib/schemas";
 
 export default function ResetPasswordForm({
   token: tokenProp,
@@ -41,24 +34,22 @@ export default function ResetPasswordForm({
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const token = (tokenProp as string) ?? (searchParams.get("token") as string);
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof resetPasswordFormSchema>>({
+    resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof resetPasswordFormSchema>) {
     setIsLoading(true);
 
     if (values.password !== values.confirmPassword) {
-      // toast.error("Passwords do not match");
       setIsLoading(false);
       return;
     }
@@ -69,9 +60,7 @@ export default function ResetPasswordForm({
     });
 
     if (error) {
-      // toast.error(error.message);
     } else {
-      // toast.success("Password reset successfully");
       router.push("/signin");
     }
 
@@ -81,7 +70,6 @@ export default function ResetPasswordForm({
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-md rounded-lg bg-white shadow-md">
-        {/* <div className={cn("flex flex-col gap-6", className)} {...props}> */}
         <Card className="border-0 shadow-none">
           <CardHeader className="text-left">
             <CardTitle className="text-xl">Reiniciar Contraseña</CardTitle>
@@ -153,7 +141,6 @@ export default function ResetPasswordForm({
             </form>
           </CardContent>
         </Card>
-        {/* </div> */}
       </div>
     </div>
   );

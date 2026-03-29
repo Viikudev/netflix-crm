@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateClient } from "@/services/clients";
 import { createClientSchema } from "@/lib/schemas";
-import { Client } from "@/types/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,12 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-
-interface UpdateClientDialogProps {
-  client: Client;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
+import { UpdateClientDialogProps } from "@/types/client";
 
 export default function UpdateClientDialog({
   client,

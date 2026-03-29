@@ -25,3 +25,26 @@ export type ClientStatus = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+export interface ClientStatusActionsProps {
+  clientStatus: ClientStatus;
+}
+
+export type ClientStatusMessageDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  clientName: string;
+  phoneNumber: string;
+};
+
+export interface ClientStatusRenewDialogProps {
+  clientStatus: ClientStatus;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export type UpdateClientStatusDialogProps = {
+  clientStatus: ClientStatus;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};

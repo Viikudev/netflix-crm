@@ -13,31 +13,25 @@ import {
   FieldGroup,
   FieldError,
 } from "@/components/ui/field";
-import z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-const formSchema = z.object({
-  email: z.email("Correo no valido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { signInFormSchema } from "@/lib/schemas";
+import { SignInFormValues } from "@/lib/schemas";
 
 export default function SignInForm() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<SignInFormValues>({
+    resolver: zodResolver(signInFormSchema),
     defaultValues: { email: "", password: "" },
   });
 
   const signInMutation = useMutation({
-    mutationFn: (data: FormValues) =>
+    mutationFn: (data: SignInFormValues) =>
       authClient.signIn.email({
         email: data.email,
         password: data.password,
@@ -64,17 +58,16 @@ export default function SignInForm() {
         return;
       }
       const message = e && e.message ? e.message : "Error durante el registro";
-      // Try to map server response to fields
+
       if (message.toLowerCase().includes("email")) {
         form.setError("email", { type: "server", message });
       } else {
-        // fallback: set form-level error on email field
         form.setError("email", { type: "server", message });
       }
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: SignInFormValues) => {
     signInMutation.mutate(data);
   };
 

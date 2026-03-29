@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteClient } from "@/services/clients";
-import { Client } from "@/types/client";
 import UpdateClientDialog from "@/components/UpdateClientDialog";
 import {
   DropdownMenu,
@@ -24,10 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
-
-interface ClientActionsProps {
-  client: Client;
-}
+import { ClientActionsProps } from "@/types/client";
 
 export default function ClientActions({ client }: ClientActionsProps) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);

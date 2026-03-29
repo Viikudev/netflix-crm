@@ -123,16 +123,6 @@ export default function CreateServiceDialog() {
             )}
           </div>
 
-          {/* <div>
-            <Label>URL de la imagen</Label>
-            <Input {...register("imageUrl")} />
-            {errors.imageUrl && (
-              <p className="text-destructive">
-                {String(errors.imageUrl.message)}
-              </p>
-            )}
-          </div> */}
-
           <div>
             <Label>Descripción</Label>
             <Textarea

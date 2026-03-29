@@ -7,3 +7,13 @@ export type ServiceProps = {
   textColor: string;
   backgroundColor: string;
 };
+
+export type ServiceActionsProps = {
+  service: ServiceProps;
+};
+
+export type UpdateServiceDialogProps = {
+  service: ServiceProps;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};

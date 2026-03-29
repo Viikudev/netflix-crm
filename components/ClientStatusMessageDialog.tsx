@@ -13,13 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-
-type ClientStatusMessageDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  clientName: string;
-  phoneNumber: string;
-};
+import { ClientStatusMessageDialogProps } from "@/types/clientStatus";
 
 export default function ClientStatusMessageDialog({
   open,

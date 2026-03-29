@@ -11,7 +11,6 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { AxiosError } from "axios";
 import { cn } from "@/lib/utils";
-
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -39,12 +38,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-
-type FormValues = {
-  email: string;
-  password: string;
-  serviceId: string;
-};
+import { CreateAccountFormValues } from "@/types/activeAccount";
 
 export default function CreateAccountDialog() {
   const [open, setOpen] = useState(false);
@@ -59,7 +53,7 @@ export default function CreateAccountDialog() {
     watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
+  } = useForm<CreateAccountFormValues>({
     defaultValues: { email: "", password: "", serviceId: "" },
   });
 
@@ -71,7 +65,7 @@ export default function CreateAccountDialog() {
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: FormValues) => {
+    mutationFn: async (data: CreateAccountFormValues) => {
       let expirationDate = new Date().toISOString();
       if (date) {
         expirationDate = date.toISOString();
@@ -99,7 +93,7 @@ export default function CreateAccountDialog() {
     },
   });
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: CreateAccountFormValues) => {
     if (!date) {
       setServerError("La fecha de expiración es obligatoria");
       return;

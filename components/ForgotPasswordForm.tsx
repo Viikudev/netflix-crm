@@ -20,23 +20,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { z } from "zod";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import { MailOpen } from "lucide-react";
-
-const formSchema = z.object({
-  email: z.email("Correo no valido"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-type CheckEmailResponse =
-  | { exists: false; emailVerified: false }
-  | { exists: true; emailVerified: boolean };
+import {
+  forgotPasswordFormSchema,
+  ForgotPasswordFormValues,
+  CheckEmailResponse,
+} from "@/lib/schemas";
 
 async function checkEmailVerification(email: string) {
   const res = await fetch("/api/users/check-email", {
@@ -58,15 +52,15 @@ async function checkEmailVerification(email: string) {
 }
 
 export default function ForgotPasswordForm() {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordFormSchema),
     defaultValues: { email: "" },
   });
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const mutation = useMutation<unknown, Error, FormValues>({
-    mutationFn: async (data: FormValues) => {
+  const mutation = useMutation<unknown, Error, ForgotPasswordFormValues>({
+    mutationFn: async (data: ForgotPasswordFormValues) => {
       try {
         // Check whether the email exists and is verified
         const verification = await checkEmailVerification(data.email);
@@ -129,7 +123,7 @@ export default function ForgotPasswordForm() {
     },
   });
 
-  const onSubmit = (data: FormValues) => mutation.mutate(data);
+  const onSubmit = (data: ForgotPasswordFormValues) => mutation.mutate(data);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">

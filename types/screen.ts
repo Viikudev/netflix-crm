@@ -5,3 +5,9 @@ export type ScreenProps = {
   activeAccountId: string;
   activeAccount?: { id: string; email: string } | null;
 };
+
+export type UpdateScreenDialogProps = {
+  screen: ScreenProps;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteClientStatus } from "@/services/clientStatus";
-import { ClientStatus } from "@/types/clientStatus";
 import UpdateClientStatusDialog from "@/components/UpdateClientStatusDialog";
 import ClientStatusRenewDialog from "@/components/ClientStatusRenewDialog";
 import ClientStatusMessageDialog from "@/components/ClientStatusMessageDialog";
@@ -25,10 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Spinner } from "@/components/ui/spinner";
-
-interface ClientStatusActionsProps {
-  clientStatus: ClientStatus;
-}
+import { ClientStatusActionsProps } from "@/types/clientStatus";
 
 export default function ClientStatusActions({
   clientStatus,

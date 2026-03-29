@@ -14,8 +14,6 @@ import {
   renewClientStatusSchema,
   RenewClientStatusValues,
 } from "@/lib/schemas";
-import { ClientStatus } from "@/types/clientStatus";
-
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -42,12 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface ClientStatusRenewDialogProps {
-  clientStatus: ClientStatus;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+import { ClientStatusRenewDialogProps } from "@/types/clientStatus";
 
 export default function ClientStatusRenewDialog({
   clientStatus,
@@ -56,8 +49,6 @@ export default function ClientStatusRenewDialog({
 }: ClientStatusRenewDialogProps) {
   const clientName = clientStatus.client?.clientName ?? clientStatus.clientName;
   const queryClient = useQueryClient();
-
-  // default to current date when opened
   const [date, setDate] = useState<Date | undefined>(new Date());
 
   const {
@@ -82,7 +73,6 @@ export default function ClientStatusRenewDialog({
 
   const { price: binancePrice } = useBinancePrice();
 
-  // Calculate price dynamically if a service object and price exist
   const calculatedAmount = useMemo(() => {
     const serviceWithPrice = clientStatus.service as { price?: number } | null;
     if (
@@ -134,7 +124,6 @@ export default function ClientStatusRenewDialog({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      // Force ACTIVE status and the newly selected date
       return await updateClientStatus(clientStatus.id, {
         status: "ACTIVE",
         amount: calculatedAmount?.cents ?? null,

@@ -12,7 +12,6 @@ import {
 } from "@/lib/schemas";
 import type { ActiveAccountProps } from "@/types/activeAccount";
 import type { ServiceProps } from "@/types/service";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -35,12 +34,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { z } from "zod";
-
-interface UpdateActiveAccountDialogProps {
-  activeAccount: ActiveAccountProps;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
+import { UpdateActiveAccountDialogProps } from "@/types/activeAccount";
 
 export default function UpdateActiveAccountDialog({
   activeAccount,

@@ -15,11 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-
-type ConvertCurrencyDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-};
+import { ConvertCurrencyDialogProps } from "@/types/bankEarnings";
 
 export default function ConvertCurrencyDialog({
   open,

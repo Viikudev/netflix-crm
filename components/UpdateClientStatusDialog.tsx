@@ -18,7 +18,6 @@ import { Client } from "@/types/client";
 import { ServiceProps } from "@/types/service";
 import { ActiveAccountProps } from "@/types/activeAccount";
 import { ScreenProps } from "@/types/screen";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,12 +39,7 @@ import {
   SelectLabel,
   SelectGroup,
 } from "@/components/ui/select";
-
-interface UpdateClientStatusDialogProps {
-  clientStatus: ClientStatus;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
+import { UpdateClientStatusDialogProps } from "@/types/clientStatus";
 
 export default function UpdateClientStatusDialog({
   clientStatus,

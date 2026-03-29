@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteService } from "@/services/services";
-import type { ServiceProps } from "@/types/service";
 import UpdateServiceDialog from "@/components/UpdateServiceDialog";
 import {
   DropdownMenu,
@@ -24,10 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
-
-interface ServiceActionsProps {
-  service: ServiceProps;
-}
+import { ServiceActionsProps } from "@/types/service";
 
 export default function ServiceActions({ service }: ServiceActionsProps) {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);

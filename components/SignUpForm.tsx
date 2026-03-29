@@ -23,31 +23,19 @@ import {
 } from "@/components/ui/dialog";
 // import { signUpAction } from "@/app/actions/auth";
 import { authClient } from "@/lib/auth-client";
-import z from "zod";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-const formSchema = z.object({
-  name: z.string().min(2, "El nombre es obligatorio"),
-  email: z.email("Correo no valido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-type SignUpResult = {
-  error?: { status?: number } | null;
-  [key: string]: unknown;
-} | null;
-type SignUpError = { status?: number; code?: string; message?: string } & Error;
+import { signUpFormSchema } from "@/lib/schemas";
+import { SignUpFormValues } from "@/lib/schemas";
+import { SignUpResult, SignUpError } from "@/types/signUp";
 
 export default function SignUpForm() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<SignUpFormValues>({
+    resolver: zodResolver(signUpFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -57,8 +45,12 @@ export default function SignUpForm() {
 
   const [generalError, setGeneralError] = useState<string | null>(null);
 
-  const signUpMutation = useMutation<SignUpResult, SignUpError, FormValues>({
-    mutationFn: (data: FormValues) =>
+  const signUpMutation = useMutation<
+    SignUpResult,
+    SignUpError,
+    SignUpFormValues
+  >({
+    mutationFn: (data: SignUpFormValues) =>
       authClient.signUp.email({
         email: data.email,
         password: data.password,
@@ -72,7 +64,7 @@ export default function SignUpForm() {
         setGeneralError("El correo ingresado ya esta en uso");
         return;
       }
-      // Optionally invalidate or refetch session/user queries
+
       queryClient.invalidateQueries({ queryKey: ["session"] });
       router.push("/verify-email");
     },
@@ -82,17 +74,15 @@ export default function SignUpForm() {
         return;
       }
       const message = err?.message || "Error durante el registro";
-      // Try to map server response to fields
       if (message.toLowerCase().includes("email")) {
         form.setError("email", { type: "server", message });
       } else {
-        // fallback: set form-level error on email field
         form.setError("email", { type: "server", message });
       }
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: SignUpFormValues) => {
     signUpMutation.mutate(data);
   };
 

@@ -12,3 +12,19 @@ export type ActiveAccountProps = {
   expirationDate: Date;
   screens?: { id: string; profileName: string; profilePIN: number }[];
 };
+
+export interface ActiveAccountActionsProps {
+  activeAccount: ActiveAccountProps;
+}
+
+export type CreateAccountFormValues = {
+  email: string;
+  password: string;
+  serviceId: string;
+};
+
+export type UpdateActiveAccountDialogProps = {
+  activeAccount: ActiveAccountProps;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};

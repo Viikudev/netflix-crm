@@ -23,12 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
-
-interface UpdateServiceDialogProps {
-  service: ServiceProps;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}
+import { UpdateServiceDialogProps } from "@/types/service";
 
 export default function UpdateServiceDialog({
   service,
@@ -46,7 +41,6 @@ export default function UpdateServiceDialog({
     handleSubmit,
     setValue,
     control,
-    // reset,
     formState: { errors },
   } = useForm<z.infer<typeof createServiceSchema>>({
     resolver: zodResolver(createServiceSchema),

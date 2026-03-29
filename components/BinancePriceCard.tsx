@@ -1,6 +1,4 @@
-type BinancePriceCardProps = {
-  price: number | null;
-};
+import type { BinancePriceCardProps } from "@/types/binancePrice";
 
 export default function BinancePriceCard({ price }: BinancePriceCardProps) {
   return (

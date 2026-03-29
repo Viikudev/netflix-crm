@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteActiveAccount } from "@/services/activeAccount";
-import type { ActiveAccountProps } from "@/types/activeAccount";
+// import type { ActiveAccountProps } from "@/types/activeAccount";
+import { ActiveAccountActionsProps } from "@/types/activeAccount";
 import UpdateActiveAccountDialog from "@/components/UpdateActiveAccountDialog";
 import CreateScreenDialog from "@/components/CreateScreenDialog";
 import {
@@ -25,10 +26,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
-
-interface ActiveAccountActionsProps {
-  activeAccount: ActiveAccountProps;
-}
 
 export default function ActiveAccountActions({
   activeAccount,
