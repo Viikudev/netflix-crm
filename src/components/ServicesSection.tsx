@@ -2,21 +2,21 @@
 
 import { useEffect, useState } from "react";
 
-import CreateServiceDialog from "@/features/streaming-services/components/service-management/CreateServiceDialog";
+import CreateServiceDialog from "@/components/CreateServiceDialog";
 import { useQuery } from "@tanstack/react-query";
-import { fetchServices } from "@/features/streaming-services/services/service-management/services";
-import type { ServiceProps } from "@/features/streaming-services/types/service";
-import ServiceActions from "@/features/streaming-services/components/service-management/ServiceActions";
+import { fetchServices } from "@/services/services";
+import type { ServiceProps } from "@/types/service";
+import ServiceActions from "@/components/ServiceActions";
 import {
   Item,
   ItemActions,
   ItemContent,
   ItemDescription,
   ItemTitle,
-} from "@/shared/components/ui/item";
-import { Skeleton } from "@/shared/components/ui/skeleton";
+} from "@/components/ui/item";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown } from "lucide-react";
-import useIsMobile from "@/shared/hooks/useIsMobile";
+import useIsMobile from "@/hooks/useIsMobile";
 
 export default function ServicesSection() {
   const [serviceIsOpen, setServiceIsOpen] = useState(false);
@@ -46,15 +46,13 @@ export default function ServicesSection() {
 
   return (
     <div
-      className={`col-span-2 flex max-h-91 flex-col overflow-y-scroll rounded-xl bg-white shadow-md transition-all duration-300 ease-in-out ${
-        serviceIsOpen
-          ? "max-sm:max-h-94"
-          : "max-sm:max-h-17 max-sm:overflow-y-hidden"
-      }`}
+      className={`${
+        serviceIsOpen ? "max-sm:max-h-94" : "max-sm:max-h-17"
+      } col-span-2 flex flex-col gap-4 overflow-y-hidden rounded-xl bg-white p-4 shadow-md transition-all duration-300 ease-in-out`}
     >
       <div
         onClick={handleServiceClick}
-        className="sticky top-0 z-10 flex items-center justify-between bg-white p-4"
+        className="flex items-center justify-between"
       >
         <div className="flex items-center gap-1">
           <h2 className="text-lg font-bold">Servicios</h2>
@@ -74,7 +72,7 @@ export default function ServicesSection() {
 
       <div>
         {isLoading && (
-          <div className="grid grid-cols-3 gap-4 px-4 pb-4 max-2xl:grid-cols-2 max-lg:grid-cols-1">
+          <div className="grid grid-cols-3 gap-4 max-2xl:grid-cols-2 max-lg:grid-cols-1">
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={`service-skeleton-${index}`}
@@ -100,7 +98,7 @@ export default function ServicesSection() {
 
         {!isLoading && !isError && data && data.length > 0 && (
           <div
-            className={`grid grid-cols-3 gap-4 px-4 pb-4 transition-all duration-300 ease-in-out max-2xl:grid-cols-2 max-lg:grid-cols-1 ${serviceIsOpen ? "" : "max-sm:hidden max-sm:opacity-0"}`}
+            className={`grid grid-cols-3 gap-4 transition-all duration-300 ease-in-out max-2xl:grid-cols-2 max-lg:grid-cols-1 ${serviceIsOpen ? "" : "max-sm:opacity-0"}`}
           >
             {data.map((service: ServiceProps) => {
               const textColor = service.textColor ?? "#111827";
