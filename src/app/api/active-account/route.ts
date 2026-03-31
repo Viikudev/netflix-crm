@@ -1,0 +1,107 @@
+import prisma from "@/shared/lib/db";
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { email, password, expirationDate, serviceId } = body ?? {};
+
+    if (!email || typeof email !== "string") {
+      return NextResponse.json(
+        { message: "Email is required" },
+        { status: 400 },
+      );
+    }
+
+    if (!password || typeof password !== "string") {
+      return NextResponse.json(
+        { message: "Password is required" },
+        { status: 400 },
+      );
+    }
+
+    if (!expirationDate || typeof expirationDate !== "string") {
+      return NextResponse.json(
+        { message: "expirationDate is required (ISO string)" },
+        { status: 400 },
+      );
+    }
+
+    if (!serviceId || typeof serviceId !== "string") {
+      return NextResponse.json(
+        { message: "serviceId is required" },
+        { status: 400 },
+      );
+    }
+
+    const exp = new Date(expirationDate);
+    if (isNaN(exp.getTime())) {
+      return NextResponse.json(
+        { message: "Invalid expirationDate" },
+        { status: 400 },
+      );
+    }
+
+    const serviceExists = await prisma.service.findUnique({
+      where: { id: serviceId },
+      select: { id: true },
+    });
+
+    if (!serviceExists) {
+      return NextResponse.json(
+        { message: "service not found" },
+        { status: 404 },
+      );
+    }
+
+    const created = await prisma.activeAccount.create({
+      data: {
+        email,
+        password,
+        serviceId,
+        expirationDate: exp,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        id: created.id,
+        email: created.email,
+        serviceId: created.serviceId,
+        expirationDate: created.expirationDate,
+      },
+      { status: 201 },
+    );
+  } catch {
+    return NextResponse.json({ err: "Internal error" }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  try {
+    const accounts = await prisma.activeAccount.findMany({
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        serviceId: true,
+        service: {
+          select: {
+            id: true,
+            serviceName: true,
+            textColor: true,
+            backgroundColor: true,
+          },
+        },
+        expirationDate: true,
+        screens: {
+          select: { id: true, profileName: true, profilePIN: true },
+        },
+      },
+    });
+    return NextResponse.json(accounts, { status: 200 });
+  } catch (error) {
+    console.error("GET Active Accounts error:", error);
+    return NextResponse.json({ message: "Internal error" }, { status: 500 });
+  }
+}
