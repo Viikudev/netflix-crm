@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -69,10 +69,11 @@ export default function UpdateClientStatusDialog({
 
   const {
     handleSubmit,
+    reset,
     setValue,
     control,
     formState: { errors },
-  } = useForm({
+  } = useForm<UpdateClientStatusValues>({
     resolver: zodResolver(updateClientStatusSchema),
     defaultValues: {
       clientId: clientStatus.clientId,
@@ -93,6 +94,16 @@ export default function UpdateClientStatusDialog({
     name: "activeAccountId",
   });
 
+  const selectedServiceId = useWatch({
+    control,
+    name: "serviceId",
+  });
+
+  const selectedScreenId = useWatch({
+    control,
+    name: "screenId",
+  });
+
   const selectedClientId = useWatch({
     control,
     name: "clientId",
@@ -107,6 +118,38 @@ export default function UpdateClientStatusDialog({
       selectedAccountId ? fetchScreens(selectedAccountId) : Promise.resolve([]),
     enabled: !!selectedAccountId,
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    reset({
+      clientId: clientStatus.clientId,
+      activeAccountId: clientStatus.activeAccountId,
+      serviceId: clientStatus.serviceId,
+      screenId: clientStatus.screenId,
+      status:
+        (clientStatus.status as "ACTIVE" | "EXPIRED" | "NEAR_EXPIRATION") ??
+        "NEAR_EXPIRATION",
+      expirationDate: clientStatus.expirationDate
+        ? new Date(clientStatus.expirationDate).toISOString().split("T")[0]
+        : null,
+    });
+  }, [clientStatus, open, reset]);
+
+  useEffect(() => {
+    if (!selectedAccountId || !screens.data || !selectedScreenId) return;
+
+    const screenBelongsToSelectedAccount = screens.data.some(
+      (screen) => screen.id === selectedScreenId,
+    );
+
+    if (!screenBelongsToSelectedAccount) {
+      setValue("screenId", undefined, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [screens.data, selectedAccountId, selectedScreenId, setValue]);
 
   const mutation = useMutation({
     mutationFn: async (data: UpdateClientStatusValues) => {
@@ -190,8 +233,28 @@ export default function UpdateClientStatusDialog({
             <div>
               <Label>Cuenta Activa</Label>
               <Select
-                onValueChange={(val) => setValue("activeAccountId", val)}
-                defaultValue={clientStatus.activeAccountId}
+                value={selectedAccountId || undefined}
+                onValueChange={(val) => {
+                  const selectedAccount = activeAccounts.data?.find(
+                    (account) => account.id === val,
+                  );
+
+                  setValue("activeAccountId", val, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  setValue("screenId", undefined, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+
+                  if (selectedAccount?.serviceId) {
+                    setValue("serviceId", selectedAccount.serviceId, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }
+                }}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Seleccione una cuenta" />
@@ -219,8 +282,13 @@ export default function UpdateClientStatusDialog({
             <div>
               <Label>Servicio</Label>
               <Select
-                onValueChange={(val) => setValue("serviceId", val)}
-                defaultValue={clientStatus.serviceId}
+                value={selectedServiceId || undefined}
+                onValueChange={(val) =>
+                  setValue("serviceId", val, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Seleccione un servicio" />
@@ -246,8 +314,13 @@ export default function UpdateClientStatusDialog({
             <div>
               <Label>Perfil</Label>
               <Select
-                onValueChange={(val) => setValue("screenId", val)}
-                defaultValue={clientStatus.screenId}
+                value={selectedScreenId || undefined}
+                onValueChange={(val) =>
+                  setValue("screenId", val, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
                 disabled={
                   !selectedAccountId || (screens.data?.length ?? 0) === 0
                 }

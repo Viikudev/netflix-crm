@@ -25,6 +25,7 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ClientStatusActionsProps } from "@/features/subscriptions/types/clientStatus";
+import useIsMobile from "@/hooks/useIsMobile";
 
 export default function ClientStatusActions({
   clientStatus,
@@ -38,6 +39,7 @@ export default function ClientStatusActions({
   const [showRenewDialog, setShowRenewDialog] = useState(false);
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -103,8 +105,8 @@ export default function ClientStatusActions({
       </AlertDialog>
 
       <div className="flex items-center justify-start gap-3">
-        <Tooltip>
-          <TooltipTrigger asChild>
+        {isMobile ? (
+          <>
             <Button
               variant="ghost"
               size="icon"
@@ -114,14 +116,7 @@ export default function ClientStatusActions({
             >
               <Pencil className="h-4 w-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Editar suscripcion</p>
-          </TooltipContent>
-        </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
@@ -131,14 +126,7 @@ export default function ClientStatusActions({
             >
               <Trash className="h-4 w-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Eliminar suscripcion</p>
-          </TooltipContent>
-        </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
@@ -148,14 +136,7 @@ export default function ClientStatusActions({
             >
               <CreditCard className="h-4 w-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Renovar suscripcion</p>
-          </TooltipContent>
-        </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
@@ -165,21 +146,78 @@ export default function ClientStatusActions({
             >
               <MessageCircle className="h-4 w-4" strokeWidth={3} />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Enviar WhatsApp</p>
-          </TooltipContent>
-        </Tooltip>
+          </>
+        ) : (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowUpdateDialog(true)}
+                  // title="Editar"
+                  className="size-7! cursor-pointer rounded-md bg-neutral-200 text-black hover:bg-neutral-200 hover:text-black"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Editar suscripcion</p>
+              </TooltipContent>
+            </Tooltip>
 
-        {/* <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowDeleteDialog(true)}
-          className="text-destructive hover:text-destructive"
-          title="Eliminar"
-        >
-          <Trash className="h-4 w-4" />
-        </Button> */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="text-destructive hover:text-destructive! size-7! cursor-pointer rounded-md bg-red-200!"
+                  // title="Eliminar"
+                >
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Eliminar suscripcion</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowRenewDialog(true)}
+                  className="size-7! cursor-pointer rounded-md bg-black! text-white hover:text-white!"
+                  // title="Renovar"
+                >
+                  <CreditCard className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Renovar suscripcion</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowMessageDialog(true)}
+                  className="size-7! cursor-pointer rounded-md bg-green-500! text-white hover:text-white!"
+                  // title="Enviar mensaje"
+                >
+                  <MessageCircle className="h-4 w-4" strokeWidth={3} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Enviar WhatsApp</p>
+              </TooltipContent>
+            </Tooltip>
+          </>
+        )}
       </div>
     </>
   );

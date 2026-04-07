@@ -100,7 +100,7 @@ export default function ServicesSection() {
 
         {!isLoading && !isError && data && data.length > 0 && (
           <div
-            className={`grid grid-cols-3 gap-4 px-4 pb-4 transition-all duration-300 ease-in-out max-2xl:grid-cols-2 max-lg:grid-cols-1 ${serviceIsOpen ? "" : "max-sm:hidden max-sm:opacity-0"}`}
+            className={`grid grid-cols-3 gap-4 px-4 pb-4 transition-all duration-300 ease-in-out max-2xl:grid-cols-2 max-lg:grid-cols-1 ${serviceIsOpen ? "" : "transition-discrete max-sm:hidden max-sm:opacity-0"}`}
           >
             {data.map((service: ServiceProps) => {
               const textColor = service.textColor ?? "#111827";

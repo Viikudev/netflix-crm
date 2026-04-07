@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    resolveAlias: {
+      axios: "axios/dist/browser/axios.cjs",
+    },
+  },
 };
 
 export default nextConfig;

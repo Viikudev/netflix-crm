@@ -19,6 +19,7 @@ import type { ScreenProps } from "@/features/streaming-services/types/screen";
 import type { ActiveAccountProps } from "@/features/streaming-services/types/activeAccount";
 import { ChevronDown, Copy } from "lucide-react";
 import ColorContrastChecker from "color-contrast-checker";
+import useIsMobile from "@/hooks/useIsMobile";
 
 const contrastChecker = new ColorContrastChecker();
 
@@ -54,6 +55,7 @@ export default function ActiveAccountCard({
     null,
   );
   const serviceTextColor = resolveServiceTextColor(activeAccount);
+  const isMobile = useIsMobile();
 
   const handleCopyProfile = (e: React.MouseEvent, screen: ScreenProps) => {
     e.stopPropagation();
@@ -117,47 +119,86 @@ PIN: ${screen.profilePIN}`;
                 showScreens ? "mt-2 max-h-70 opacity-100" : "max-h-0 opacity-0"
               }`}
             >
-              {activeAccount.screens.map((screen) => (
-                <Tooltip key={screen.id}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className="group flex cursor-pointer items-center justify-between gap-2 rounded-full border pl-4 font-medium text-neutral-600 transition-colors"
-                      onClick={() =>
-                        setSelectedScreen({
-                          ...screen,
-                          activeAccountId: activeAccount.id,
-                        })
-                      }
-                    >
-                      <div className="flex flex-col pr-2">
-                        <div className="flex h-4 items-center gap-2 text-left text-sm">
-                          <span>{screen.profileName}</span>
-                          <Separator orientation="vertical" />
-                          <span className="text-left text-xs text-neutral-400">
-                            PIN: {screen.profilePIN}
-                          </span>
+              {isMobile
+                ? activeAccount.screens.map((screen) => (
+                    <div key={screen.id}>
+                      <div>
+                        <div
+                          className="group flex cursor-pointer items-center justify-between gap-2 rounded-full border pl-4 font-medium text-neutral-600 transition-colors"
+                          onClick={() =>
+                            setSelectedScreen({
+                              ...screen,
+                              activeAccountId: activeAccount.id,
+                            })
+                          }
+                        >
+                          <div className="flex flex-col pr-2">
+                            <div className="flex h-4 items-center gap-2 text-left text-sm">
+                              <span>{screen.profileName}</span>
+                              <Separator orientation="vertical" />
+                              <span className="text-left text-xs text-neutral-400">
+                                PIN: {screen.profilePIN}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0 rounded-full transition-opacity group-hover:opacity-100 hover:bg-neutral-100!"
+                            onClick={(e) => {
+                              handleCopyProfile(e, {
+                                ...screen,
+                                activeAccountId: activeAccount.id,
+                              });
+                            }}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 shrink-0 rounded-full transition-opacity group-hover:opacity-100 hover:bg-neutral-100!"
-                        onClick={(e) => {
-                          handleCopyProfile(e, {
-                            ...screen,
-                            activeAccountId: activeAccount.id,
-                          });
-                        }}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
                     </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Actualizar &quot;{screen.profileName}&quot;</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+                  ))
+                : activeAccount.screens.map((screen) => (
+                    <Tooltip key={screen.id}>
+                      <TooltipTrigger asChild>
+                        <div
+                          className="group flex cursor-pointer items-center justify-between gap-2 rounded-full border pl-4 font-medium text-neutral-600 transition-colors"
+                          onClick={() =>
+                            setSelectedScreen({
+                              ...screen,
+                              activeAccountId: activeAccount.id,
+                            })
+                          }
+                        >
+                          <div className="flex flex-col pr-2">
+                            <div className="flex h-4 items-center gap-2 text-left text-sm">
+                              <span>{screen.profileName}</span>
+                              <Separator orientation="vertical" />
+                              <span className="text-left text-xs text-neutral-400">
+                                PIN: {screen.profilePIN}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0 rounded-full transition-opacity group-hover:opacity-100 hover:bg-neutral-100!"
+                            onClick={(e) => {
+                              handleCopyProfile(e, {
+                                ...screen,
+                                activeAccountId: activeAccount.id,
+                              });
+                            }}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Actualizar &quot;{screen.profileName}&quot;</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
             </div>
           </div>
         )}

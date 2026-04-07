@@ -24,7 +24,7 @@ export default async function ResetPasswordPage() {
   }
 
   return (
-    <div className="mx-10 pb-10 max-sm:mx-4">
+    <div className="mx-10 pb-24 max-sm:mx-4">
       <Tabs defaultValue="panel-principal" className="w-full gap-4">
         <TabsList
           variant="line"

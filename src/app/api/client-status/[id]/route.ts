@@ -61,6 +61,9 @@ export async function PATCH(
       select: {
         id: true,
         clientId: true,
+        activeAccountId: true,
+        serviceId: true,
+        screenId: true,
         client: {
           select: {
             id: true,
@@ -78,15 +81,77 @@ export async function PATCH(
       );
     }
 
+    const nextActiveAccountId =
+      typeof parsed.data.activeAccountId === "string"
+        ? parsed.data.activeAccountId
+        : currentSubscription.activeAccountId;
+    const nextServiceId =
+      typeof parsed.data.serviceId === "string"
+        ? parsed.data.serviceId
+        : currentSubscription.serviceId;
+    const nextScreenId =
+      typeof parsed.data.screenId === "string"
+        ? parsed.data.screenId
+        : currentSubscription.screenId;
+
+    const [nextActiveAccount, nextService, nextScreen] = await Promise.all([
+      prisma.activeAccount.findUnique({
+        where: { id: nextActiveAccountId },
+        select: { id: true, serviceId: true },
+      }),
+      prisma.service.findUnique({
+        where: { id: nextServiceId },
+        select: { id: true },
+      }),
+      prisma.screen.findUnique({
+        where: { id: nextScreenId },
+        select: { id: true, activeAccountId: true },
+      }),
+    ]);
+
+    if (!nextActiveAccount) {
+      return NextResponse.json(
+        { message: "Active account not found" },
+        { status: 404 },
+      );
+    }
+
+    if (!nextService) {
+      return NextResponse.json(
+        { message: "Service not found" },
+        { status: 404 },
+      );
+    }
+
+    if (!nextScreen) {
+      return NextResponse.json(
+        { message: "Screen not found" },
+        { status: 404 },
+      );
+    }
+
+    if (nextScreen.activeAccountId !== nextActiveAccount.id) {
+      return NextResponse.json(
+        { message: "Selected profile does not belong to the selected account" },
+        { status: 400 },
+      );
+    }
+
+    if (
+      nextActiveAccount.serviceId &&
+      nextActiveAccount.serviceId !== nextService.id
+    ) {
+      return NextResponse.json(
+        { message: "Selected account does not belong to the selected service" },
+        { status: 400 },
+      );
+    }
+
     const normalizedPhone = clientDataToUpdate.phoneNumber;
     const targetClientName = clientDataToUpdate.clientName;
 
     if (typeof parsed.data.clientId === "string") {
-      subscriptionData.client = {
-        connect: {
-          id: parsed.data.clientId,
-        },
-      };
+      subscriptionData.clientId = parsed.data.clientId;
     } else if (normalizedPhone) {
       const existingClient = await prisma.client.findUnique({
         where: { phoneNumber: normalizedPhone },
@@ -160,6 +225,16 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Error updating client status:", error);
+
+    if (process.env.NODE_ENV !== "production") {
+      return NextResponse.json(
+        {
+          message: error instanceof Error ? error.message : String(error),
+        },
+        { status: 500 },
+      );
+    }
+
     return NextResponse.json({ message: "Internal error" }, { status: 500 });
   }
 }

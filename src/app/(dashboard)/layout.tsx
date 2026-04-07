@@ -2,6 +2,7 @@ import { ReactQueryProvider } from "../provider";
 import Header from "@/shared/components/shell/Header";
 import { BinancePriceProvider } from "@/shared/context/BinancePriceContext";
 import { fetchP2PPrice } from "@/shared/lib/binance";
+import Chat from "@/features/chat/components/Chat";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function DashboardLayout({
       <BinancePriceProvider price={price}>
         <Header price={price} />
         <ReactQueryProvider>{children}</ReactQueryProvider>
+        <Chat />
       </BinancePriceProvider>
     </div>
   );
