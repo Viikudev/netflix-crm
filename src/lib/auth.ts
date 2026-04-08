@@ -4,7 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import { getResend } from "@/lib/resend";
 // If your Prisma file is located elsewhere, you can change the path
 import prisma from "@/lib/db";
-import TwitchResetPasswordEmail from "@/components/emails/ResetPassword";
+import TwitchResetPasswordEmail from "@/shared/components/emails/ResetPassword";
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
